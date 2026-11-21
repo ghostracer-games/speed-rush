@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Speed Rush - اربح و العب</title>
+<title>Speed Rush - Play & Earn</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:#0f0f1a;color:#fff;font-family:system-ui;overflow:hidden;touch-action:none}
@@ -18,7 +17,7 @@ body{background:#0f0f1a;color:#fff;font-family:system-ui;overflow:hidden;touch-a
 #hud{position:absolute;top:0;left:0;right:0;padding:12px;display:flex;justify-content:space-between;z-index:20;background:linear-gradient(rgba(0,0,0,.7),transparent);font-weight:800}
 #hud div{background:rgba(0,0,0,.6);padding:6px 10px;border-radius:20px;font-size:14px}
 #controls{position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;z-index:30}
-.btn{width:70px;height:70px;background:rgba(255,255,255,.2);border:2px solid #fff;border-radius:50%;font-size:32px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.btn{width:70px;height:70px;background:rgba(255,255,255,.2);border:2px solid #fff;border-radius:50%;font-size:32px;display:flex;align-items:center;justify-content:center}
 #startScreen,#gameOver{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
 h1{font-size:38px;color:#ffd700;margin-bottom:5px}
 h1 span{color:#ff4757}
@@ -33,26 +32,26 @@ p{opacity:.8;margin:8px 0;line-height:1.6}
 <body>
 <div id="game">
 <div id="road"></div>
-<div id="hud"><div>💰 <span id="coins">0</span></div><div>⭐ <span id="score">0</span></div><div>🏁 ليفل <span id="level">1</span></div></div>
+<div id="hud"><div>💰 <span id="coins">0</span></div><div>⭐ <span id="score">0</span></div><div>🏁 Level <span id="level">1</span></div></div>
 <div id="player"></div>
 <div id="controls"><div class="btn" id="leftBtn">◀️</div><div class="btn" id="rightBtn">▶️</div></div>
-<div id="levelUp" class="hidden">🎉 ليفل جديد!</div>
+<div id="levelUp" class="hidden">🎉 New Level!</div>
 <div id="startScreen">
 <h1>SPEED <span>RUSH</span> 🏎️</h1>
-<p>جمع الفلوس 💰 و هرب من الطوموبيلات!<br>التصادم دابا عادل 100% - خاص يقيسك بصح باش تخسر</p>
-<p>🎮 حرك بالأسهم ولا بالبوطونات<br>💰 جمع 10 دراهم = ليفل جديد</p>
-<div id="adBox">📢 هنا غادي تكون الإشهارات و تدخل الفلوس<br>كل 1000 لاعب = فلوس حقيقية</div>
-<button class="bigBtn" onclick="startGame()">▶️ العب دابا - فابور</button>
-<button class="bigBtn2" onclick="shareGame()">📤 بارطاجي مع صحابك و ربح</button>
-<p style="font-size:12px">صايبها Maati Raghi 🇲🇦</p>
+<p>Collect coins 💰 and dodge cars!<br>Fair collision now 100% - car must really hit you to lose</p>
+<p>🎮 Move with arrows or buttons<br>💰 Collect 10 coins = New Level</p>
+<div id="adBox">📢 Ads will be here to earn real money<br>1000 players = real cash</div>
+<button class="bigBtn" onclick="startGame()">▶️ PLAY NOW - FREE</button>
+<button class="bigBtn2" onclick="shareGame()">📤 Share With Friends & Earn</button>
+<p style="font-size:12px">Made by Maati Raghi 🇲🇦</p>
 </div>
 <div id="gameOver" class="hidden">
-<h1>💥 خسرتي!</h1>
+<h1>💥 Game Over!</h1>
 <p id="finalScore" style="font-size:20px;font-weight:800"></p>
-<p>بغيتي ترجع الفلوس ديالك؟ بارطاجي اللعبة!</p>
-<button class="bigBtn" onclick="startGame()">🔄 العب عاود</button>
-<button class="bigBtn2" onclick="shareGame()">📤 بارطاجي باش تربح</button>
-<div id="adBox">💡 نصيحة: إلا بارطاجيتي مع 10 ديال صحابك و لعبوها، تقدر تدير Google AdSense و تبدا تدخل الفلوس</div>
+<p>Want your coins back? Share the game!</p>
+<button class="bigBtn" onclick="startGame()">🔄 Play Again</button>
+<button class="bigBtn2" onclick="shareGame()">📤 Share To Earn</button>
+<div id="adBox">💡 Tip: If you share with 10 friends and they play, you can add Google AdSense and start earning real money</div>
 </div>
 </div>
 <script>
@@ -72,7 +71,6 @@ frame++;score++;if(frame%70==0)spawnEnemy();if(frame%45==0)spawnCoin();
 if(score%500==0){level=Math.floor(score/500)+1;speed=4+level*0.6;let lu=document.getElementById('levelUp');lu.classList.remove('hidden');setTimeout(()=>lu.classList.add('hidden'),1200);}
 let gw=document.getElementById('game').offsetWidth,gh=document.getElementById('game').offsetHeight;
 let px=playerX/100*gw, py=gh-110-78, pw=48, ph=78;
-// HITBOX مصلوح: صغرنا التصادم ب 40% باش ما تخسرش بلا سبب
 let hitX=px+12, hitY=py+18, hitW=24, hitH=42;
 enemies.forEach((e,idx)=>{e.y+=speed;e.el.style.top=e.y+'px';
 let ex=e.x/100*gw+12, ey=e.y+18, ew=24, eh=42;
@@ -86,13 +84,13 @@ if(c.y>gh){c.el.remove();coinsArr.splice(idx,1);}
 });
 placePlayer();updateHUD();
 }
-function gameOver(){playing=false;clearInterval(gameLoop);document.getElementById('finalScore').textContent=`جمعتي ${coins} 💰 و ${score} نقطة - ليفل ${level}`;document.getElementById('gameOver').classList.remove('hidden');}
+function gameOver(){playing=false;clearInterval(gameLoop);document.getElementById('finalScore').textContent=`You collected ${coins} 💰 and ${score} points - Level ${level}`;document.getElementById('gameOver').classList.remove('hidden');}
 document.getElementById('leftBtn').addEventListener('touchstart',()=>{if(playerX>15)playerX-=9;placePlayer();});
 document.getElementById('rightBtn').addEventListener('touchstart',()=>{if(playerX<85)playerX+=9;placePlayer();});
 document.addEventListener('keydown',e=>{if(e.key=='ArrowLeft'&&playerX>15)playerX-=7;if(e.key=='ArrowRight'&&playerX<85)playerX+=7;placePlayer();});
 let touchX=null;document.getElementById('game').addEventListener('touchmove',e=>{let t=e.touches[0];if(touchX!==null){let dx=(t.clientX-touchX)/window.innerWidth*100;playerX=Math.max(12,Math.min(88,playerX+dx));placePlayer();}touchX=t.clientX;});
 document.getElementById('game').addEventListener('touchend',()=>touchX=null);
-function shareGame(){let txt='شوف هاد اللعبة واعرة! 🏎️💰 جمعت '+coins+' فلوس! العبها دابا فابور: https://raghimaati.github.io/speed-rush';if(navigator.share){navigator.share({text:txt,url:'https://raghimaati.github.io/speed-rush'});}else{navigator.clipboard.writeText(txt);alert('تم نسخ الرابط! صيفطو لصحابك 📤');}}
+function shareGame(){let txt='Check this awesome game! 🏎️💰 I collected '+coins+' coins! Play FREE now: https://raghimaati.github.io/speed-rush';if(navigator.share){navigator.share({text:txt,url:'https://raghimaati.github.io/speed-rush'});}else{navigator.clipboard.writeText(txt);alert('Link copied! Send it to your friends 📤');}}
 </script>
 </body>
 </html>
