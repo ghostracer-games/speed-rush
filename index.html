@@ -2,95 +2,140 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Speed Rush - Play & Earn</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Speed Rush V2</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#0f0f1a;color:#fff;font-family:system-ui;overflow:hidden;touch-action:none}
-#game{position:relative;width:100vw;height:100vh;max-width:480px;margin:0 auto;background:linear-gradient(#1a1a2e,#16213e);overflow:hidden}
-#road{position:absolute;left:50%;transform:translateX(-50%);width:78%;height:100%;background:#222;border-left:3px solid #ffd700;border-right:3px solid #ffd700}
-.lane{position:absolute;top:0;width:3px;height:100%;background:repeating-linear-gradient(#fff 0 30px,transparent 30px 60px);opacity:.5}
-#player{position:absolute;width:48px;height:78px;background:#ff4757;border-radius:12px 12px 6px 6px;z-index:10;box-shadow:0 0 20px #ff4757;transition:left .08s}
-#player:before{content:"🏎️";font-size:42px;position:absolute;left:3px;top:12px}
-.enemy{position:absolute;width:48px;height:78px;border-radius:12px 12px 6px 6px;z-index:5}
-.coin{position:absolute;width:34px;height:34px;background:#ffd700;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:6;box-shadow:0 0 15px #ffd700}
-#hud{position:absolute;top:0;left:0;right:0;padding:12px;display:flex;justify-content:space-between;z-index:20;background:linear-gradient(rgba(0,0,0,.7),transparent);font-weight:800}
-#hud div{background:rgba(0,0,0,.6);padding:6px 10px;border-radius:20px;font-size:14px}
-#controls{position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;z-index:30}
-.btn{width:70px;height:70px;background:rgba(255,255,255,.2);border:2px solid #fff;border-radius:50%;font-size:32px;display:flex;align-items:center;justify-content:center}
-#startScreen,#gameOver{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
-h1{font-size:38px;color:#ffd700;margin-bottom:5px}
-h1 span{color:#ff4757}
-p{opacity:.8;margin:8px 0;line-height:1.6}
-.bigBtn{background:#ffd700;color:#000;border:none;padding:15px 35px;border-radius:30px;font-size:20px;font-weight:900;margin-top:15px;cursor:pointer;width:90%}
-.bigBtn2{background:#ff4757;color:#fff;border:none;padding:12px 25px;border-radius:30px;font-size:16px;font-weight:800;margin-top:10px;cursor:pointer}
-#adBox{background:#222;border:1px dashed #ffd700;padding:10px;border-radius:12px;margin-top:15px;font-size:12px;width:90%}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;font-family:Arial,sans-serif;overflow:hidden}
+#game{width:100vw;height:100vh;max-width:450px;margin:0 auto;position:relative;background:#111;overflow:hidden}
+#road{position:absolute;left:50%;transform:translateX(-50%);width:85%;height:100%;background:#2b2b2b;border-left:4px solid #fff;border-right:4px solid #fff}
+.line{position:absolute;width:6px;height:50px;background:#fff;left:50%;transform:translateX(-50%);border-radius:3px}
+#player{position:absolute;width:50px;height:80px;z-index:10;left:50%;bottom:100px;transform:translateX(-50%);font-size:55px;text-align:center;line-height:80px;filter:drop-shadow(0 0 10px red)}
+.enemy{position:absolute;width:50px;height:80px;z-index:5;font-size:55px;text-align:center;line-height:80px}
+.coin{position:absolute;width:35px;height:35px;z-index:6;font-size:28px;text-align:center}
+#top{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;padding:12px}
+.pill{background:rgba(0,0,0,.7);color:#fff;padding:8px 14px;border-radius:20px;font-weight:800;font-size:14px}
+#controls{position:absolute;bottom:15px;left:0;right:0;display:flex;justify-content:space-between;padding:0 15px;z-index:20}
+.ctrl{width:75px;height:75px;background:rgba(255,255,255,.25);border:2px solid #fff;border-radius:50%;font-size:35px;display:flex;align-items:center;justify-content:center}
+.screen{position:absolute;inset:0;background:rgba(0,0,0,.92);z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:25px;text-align:center;color:#fff}
+.screen h1{font-size:42px;color:#FFD700}
+.screen h1 span{color:#FF4757}
+.screen p{margin:10px 0;opacity:.85;line-height:1.5}
+.big{background:#FFD700;color:#000;border:0;padding:16px 30px;border-radius:30px;font-size:20px;font-weight:900;width:100%;margin-top:15px}
+.small{background:#FF4757;color:#fff;border:0;padding:12px 20px;border-radius:30px;font-size:16px;font-weight:800;width:100%;margin-top:10px}
+.ad{border:1px dashed #FFD700;padding:12px;border-radius:10px;margin-top:15px;font-size:12px;color:#ccc;width:100%}
 .hidden{display:none!important}
-#levelUp{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:#ffd700;color:#000;padding:15px 25px;border-radius:20px;font-weight:900;font-size:22px;z-index:40}
 </style>
 </head>
 <body>
 <div id="game">
 <div id="road"></div>
-<div id="hud"><div>💰 <span id="coins">0</span></div><div>⭐ <span id="score">0</span></div><div>🏁 Level <span id="level">1</span></div></div>
-<div id="player"></div>
-<div id="controls"><div class="btn" id="leftBtn">◀️</div><div class="btn" id="rightBtn">▶️</div></div>
-<div id="levelUp" class="hidden">🎉 New Level!</div>
-<div id="startScreen">
-<h1>SPEED <span>RUSH</span> 🏎️</h1>
-<p>Collect coins 💰 and dodge cars!<br>Fair collision now 100% - car must really hit you to lose</p>
-<p>🎮 Move with arrows or buttons<br>💰 Collect 10 coins = New Level</p>
-<div id="adBox">📢 Ads will be here to earn real money<br>1000 players = real cash</div>
-<button class="bigBtn" onclick="startGame()">▶️ PLAY NOW - FREE</button>
-<button class="bigBtn2" onclick="shareGame()">📤 Share With Friends & Earn</button>
-<p style="font-size:12px">Made by Maati Raghi 🇲🇦</p>
+<div id="top">
+<div class="pill">💰 <span id="coins">0</span></div>
+<div class="pill">⭐ <span id="score">0</span></div>
+<div class="pill">LV <span id="level">1</span></div>
 </div>
-<div id="gameOver" class="hidden">
-<h1>💥 Game Over!</h1>
-<p id="finalScore" style="font-size:20px;font-weight:800"></p>
-<p>Want your coins back? Share the game!</p>
-<button class="bigBtn" onclick="startGame()">🔄 Play Again</button>
-<button class="bigBtn2" onclick="shareGame()">📤 Share To Earn</button>
-<div id="adBox">💡 Tip: If you share with 10 friends and they play, you can add Google AdSense and start earning real money</div>
+<div id="player">🏎️</div>
+<div id="controls"><div class="ctrl" id="L">◀️</div><div class="ctrl" id="R">▶️</div></div>
+
+<div id="menu" class="screen">
+<h1>SPEED <span>RUSH</span> V2</h1>
+<p>New Game. New Start. From Zero.</p>
+<p>💰 Collect Coins<br>🏎️ Dodge Cars<br>🏆 Beat Your Record</p>
+<div class="ad">📢 AD SPACE - Earn Money Here<br>Your AdSense will be here</div>
+<button class="big" onclick="start()">▶ PLAY NOW</button>
+<button class="small" onclick="share()">📤 SHARE & EARN</button>
+<p style="font-size:12px">By Maati Raghi 🇲🇦 | v2.0 Fresh Build</p>
+</div>
+
+<div id="over" class="screen hidden">
+<h1>💥 CRASH!</h1>
+<p id="final" style="font-size:19px;font-weight:800"></p>
+<button class="big" onclick="start()">🔄 PLAY AGAIN</button>
+<button class="small" onclick="share()">📤 SHARE TO EARN</button>
+<div class="ad">💡 Share with 10 friends = More players = Real money with AdSense</div>
 </div>
 </div>
+
 <script>
-let playerX=50,score=0,coins=0,level=1,speed=4,playing=false,enemies=[],coinsArr=[],gameLoop;
-let road=document.getElementById('road');
-for(let i=1;i<4;i++){let l=document.createElement('div');l.className='lane';l.style.left=(i*25)+'%';road.appendChild(l);}
+let x=50,score=0,coins=0,level=1,speed=5,run=false,timer,enemies=[],coinsArr=[],frame=0;
+let game=document.getElementById('game');
 let player=document.getElementById('player');
-function placePlayer(){player.style.left=(playerX/100*document.getElementById('game').offsetWidth -24)+'px';player.style.bottom='110px';}
-placePlayer();
-function startGame(){document.getElementById('startScreen').classList.add('hidden');document.getElementById('gameOver').classList.add('hidden');score=0;coins=0;level=1;speed=4;playerX=50;enemies.forEach(e=>e.el.remove());coinsArr.forEach(c=>c.el.remove());enemies=[];coinsArr=[];playing=true;updateHUD();clearInterval(gameLoop);gameLoop=setInterval(update,16);}
-function updateHUD(){document.getElementById('coins').textContent=coins;document.getElementById('score').textContent=score;document.getElementById('level').textContent=level;}
-function spawnEnemy(){let el=document.createElement('div');el.className='enemy';let colors=['#2ed573','#1e90ff','#eccc68','#ff6b81','#a55eea'];el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.left=(10+Math.random()*70)+'%';el.style.top='-90px';el.innerHTML='<div style="font-size:40px;text-align:center;margin-top:15px">🚗</div>';document.getElementById('game').appendChild(el);enemies.push({el,y:-90,x:parseFloat(el.style.left)});}
-function spawnCoin(){let el=document.createElement('div');el.className='coin';el.textContent='💰';el.style.left=(12+Math.random()*68)+'%';el.style.top='-40px';document.getElementById('game').appendChild(el);coinsArr.push({el,y:-40,x:parseFloat(el.style.left)});}
-let frame=0;
-function update(){
-frame++;score++;if(frame%70==0)spawnEnemy();if(frame%45==0)spawnCoin();
-if(score%500==0){level=Math.floor(score/500)+1;speed=4+level*0.6;let lu=document.getElementById('levelUp');lu.classList.remove('hidden');setTimeout(()=>lu.classList.add('hidden'),1200);}
-let gw=document.getElementById('game').offsetWidth,gh=document.getElementById('game').offsetHeight;
-let px=playerX/100*gw, py=gh-110-78, pw=48, ph=78;
-let hitX=px+12, hitY=py+18, hitW=24, hitH=42;
-enemies.forEach((e,idx)=>{e.y+=speed;e.el.style.top=e.y+'px';
-let ex=e.x/100*gw+12, ey=e.y+18, ew=24, eh=42;
-if(hitX < ex+ew && hitX+hitW > ex && hitY < ey+eh && hitY+hitH > ey){gameOver();}
-if(e.y>gh){e.el.remove();enemies.splice(idx,1);}
-});
-coinsArr.forEach((c,idx)=>{c.y+=speed;c.el.style.top=c.y+'px';
-let cx=c.x/100*gw, cy=c.y;
-if(Math.abs(px-cx)<40 && Math.abs((gh-110)-cy)<60){coins+=1;c.el.remove();coinsArr.splice(idx,1);updateHUD();}
-if(c.y>gh){c.el.remove();coinsArr.splice(idx,1);}
-});
-placePlayer();updateHUD();
+let road=document.getElementById('road');
+// Road lines
+for(let i=0;i<6;i++){let d=document.createElement('div');d.className='line';d.style.top=(i*160)+'px';road.appendChild(d);document.querySelectorAll('.line').forEach(l=>l.style.left='33%');}
+let line2=document.createElement('div');line2.className='line';line2.style.left='66%';line2.style.top='80px';road.appendChild(line2);
+
+function drawPlayer(){ player.style.left = (x/100*game.offsetWidth -25)+'px'; }
+drawPlayer();
+
+function start(){
+document.getElementById('menu').classList.add('hidden');
+document.getElementById('over').classList.add('hidden');
+score=0;coins=0;level=1;speed=5;x=50;frame=0;
+enemies.forEach(e=>e.el.remove()); coinsArr.forEach(c=>c.el.remove());
+enemies=[];coinsArr=[]; run=true; updateHUD();
+clearInterval(timer); timer=setInterval(loop,16);
 }
-function gameOver(){playing=false;clearInterval(gameLoop);document.getElementById('finalScore').textContent=`You collected ${coins} 💰 and ${score} points - Level ${level}`;document.getElementById('gameOver').classList.remove('hidden');}
-document.getElementById('leftBtn').addEventListener('touchstart',()=>{if(playerX>15)playerX-=9;placePlayer();});
-document.getElementById('rightBtn').addEventListener('touchstart',()=>{if(playerX<85)playerX+=9;placePlayer();});
-document.addEventListener('keydown',e=>{if(e.key=='ArrowLeft'&&playerX>15)playerX-=7;if(e.key=='ArrowRight'&&playerX<85)playerX+=7;placePlayer();});
-let touchX=null;document.getElementById('game').addEventListener('touchmove',e=>{let t=e.touches[0];if(touchX!==null){let dx=(t.clientX-touchX)/window.innerWidth*100;playerX=Math.max(12,Math.min(88,playerX+dx));placePlayer();}touchX=t.clientX;});
-document.getElementById('game').addEventListener('touchend',()=>touchX=null);
-function shareGame(){let txt='Check this awesome game! 🏎️💰 I collected '+coins+' coins! Play FREE now: https://raghimaati.github.io/speed-rush';if(navigator.share){navigator.share({text:txt,url:'https://raghimaati.github.io/speed-rush'});}else{navigator.clipboard.writeText(txt);alert('Link copied! Send it to your friends 📤');}}
+function updateHUD(){
+document.getElementById('coins').textContent=coins;
+document.getElementById('score').textContent=score;
+document.getElementById('level').textContent=level;
+}
+function newEnemy(){
+let el=document.createElement('div'); el.className='enemy'; el.textContent='🚗';
+el.style.left=(8+Math.random()*75)+'%'; el.style.top='-90px';
+game.appendChild(el); enemies.push({el,y:-90,px:parseFloat(el.style.left)});
+}
+function newCoin(){
+let el=document.createElement('div'); el.className='coin'; el.textContent='💰';
+el.style.left=(10+Math.random()*72)+'%'; el.style.top='-40px';
+game.appendChild(el); coinsArr.push({el,y:-40,px:parseFloat(el.style.left)});
+}
+function loop(){
+frame++; score++;
+if(frame%65==0) newEnemy();
+if(frame%40==0) newCoin();
+if(score%400==0){ level=Math.floor(score/400)+1; speed=5+level*0.7; }
+let gw=game.offsetWidth, gh=game.offsetHeight;
+let px=x/100*gw, py=gh-100-80;
+// FAIR HITBOX - 50% smaller, only center counts
+let hx=px-10, hy=py+20, hw=20, hh=40;
+enemies.forEach((e,i)=>{
+e.y+=speed; e.el.style.top=e.y+'px';
+let ex=e.px/100*gw-10, ey=e.y+20, ew=20, eh=40;
+if(hx<ex+ew && hx+hw>ex && hy<ey+eh && hy+hh>ey){ end(); }
+if(e.y>gh){ e.el.remove(); enemies.splice(i,1); }
+});
+coinsArr.forEach((c,i)=>{
+c.y+=speed; c.el.style.top=c.y+'px';
+let cx=c.px/100*gw, cy=c.y;
+if(Math.abs(px-cx)<38 && Math.abs((gh-100)-cy)<55){ coins++; c.el.remove(); coinsArr.splice(i,1); }
+if(c.y>gh){ c.el.remove(); coinsArr.splice(i,1); }
+});
+drawPlayer(); updateHUD();
+// Animate road
+document.querySelectorAll('.line').forEach(l=>{
+let t=parseInt(l.style.top)||0; t+=speed; if(t>gh) t=-50; l.style.top=t+'px';
+});
+}
+function end(){
+run=false; clearInterval(timer);
+document.getElementById('final').textContent=`You got ${coins} coins 💰 | ${score} points | Level ${level}`;
+document.getElementById('over').classList.remove('hidden');
+}
+document.getElementById('L').addEventListener('touchstart',()=>{ if(x>15) x-=12; drawPlayer(); });
+document.getElementById('R').addEventListener('touchstart',()=>{ if(x<85) x+=12; drawPlayer(); });
+document.addEventListener('keydown',e=>{
+if(e.key=='ArrowLeft'&&x>15) x-=8;
+if(e.key=='ArrowRight'&&x<85) x+=8;
+drawPlayer();
+});
+function share(){
+let t='Play SPEED RUSH V2! 🏎️💰 I got '+coins+' coins! Play FREE: https://raghimaati.github.io/speed-rush';
+if(navigator.share) navigator.share({text:t,url:'https://raghimaati.github.io/speed-rush'});
+else{ navigator.clipboard.writeText(t); alert('Link copied! Share it 📤'); }
+}
 </script>
 </body>
 </html>
