@@ -30,7 +30,15 @@ const ctx=canvas.getContext('2d');
 let W=480,H=600,playing=false,muted=false;
 let carX=215,carY=450,carW=50,carH=90;
 let speed=6,score=0,coinsCollected=0;
-let enemies=[],coins=[],roadOffset=0;
+let enemies=[],coins=[],roadOffset=0;let touchX=null;
+canvas.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX; initAudio();});
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(touchX===null) return;
+  let dx=e.touches[0].clientX-touchX;
+  carX+=dx*1.5;
+  touchX=e.touches[0].clientX;
+});
 let leftPressed=false,rightPressed=false;
 let audioCtx=null,engineOsc=null,engineGain=null;
 
