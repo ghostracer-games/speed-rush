@@ -30,8 +30,7 @@ button{font-size:22px;padding:12px 20px;margin:5px;border-radius:12px;background
 <button class="car-select" onclick="pickCar('🏁',this)">🏁</button>
 </div>
 <br>
-<button onclick="startGame()">▶️ START GAME</button>
-<button id="soundBtn" onclick="toggleSound()">🔊 SOUND ON</button><br>
+<button onclick="startGame()">▶️ START GAME</button><br>
 <button class="ctrl" onclick="moveBtn(-1)">⬅️</button>
 <button class="ctrl" onclick="moveBtn(1)">➡️</button>
 <p>Easy Mode 😍 - Move with mouse or finger - Have Fun!</p>
@@ -39,39 +38,10 @@ button{font-size:22px;padding:12px 20px;margin:5px;border-radius:12px;background
 let x=45, score=0, coins=0, level=1, playing=false, best=localStorage.getItem('best')||0;
 document.getElementById('best').innerText=best;
 let game=document.getElementById('game');
-
-// --- SOUND LIGHT ONLY - NO ENGINE NOISE ---
-let audioCtx=null, soundOn=true;
-function initAudio(){
-  if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
-  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
-}
-function toggleSound(){
-  soundOn=!soundOn;
-  document.getElementById('soundBtn').innerText = soundOn ? '🔊 SOUND ON' : '🔇 SOUND OFF';
-}
-function beep(freq,dur,type,vol){
-  if(!soundOn || !audioCtx) return;
-  let o=audioCtx.createOscillator(), g=audioCtx.createGain();
-  o.type=type||'sine'; o.frequency.value=freq;
-  g.gain.value=vol||0.06;
-  o.connect(g); g.connect(audioCtx.destination);
-  o.start(); o.stop(audioCtx.currentTime+dur);
-}
-function playCoin(){
-  beep(880,0.12,'sine',0.07);
-  setTimeout(()=>beep(1320,0.15,'sine',0.06),80);
-}
-function playCrash(){
-  beep(200,0.25,'sine',0.08);
-  setTimeout(()=>beep(120,0.3,'sine',0.07),150);
-}
-// --- END SOUND ---
-
 function pickCar(c,el){ document.getElementById('player').innerText=c; document.querySelectorAll('.car-select').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
 function updatePlayer(){ document.getElementById('player').style.left=x+'%'; }
-function moveBtn(d){ initAudio(); x=Math.max(5,Math.min(85,x+d*10)); updatePlayer(); }
-function startGame(){ initAudio(); if(playing) return; playing=true; beep(520,0.15,'sine',0.06); run(); }
+function moveBtn(d){ x=Math.max(5,Math.min(85,x+d*10)); updatePlayer(); }
+function startGame(){ if(playing) return; playing=true; run(); }
 document.addEventListener('mousemove', e=>{
   let rect=game.getBoundingClientRect();
   if(e.clientY>rect.top && e.clientY<rect.bottom){
@@ -84,7 +54,7 @@ document.addEventListener('keydown', e=>{
   if(e.key==='ArrowRight'){ x=Math.min(85,x+10); updatePlayer(); }
 });
 let startX=0;
-game.addEventListener('touchstart', e=>{ initAudio(); startX=e.touches[0].clientX; }, {passive:true});
+game.addEventListener('touchstart', e=>{ startX=e.touches[0].clientX; }, {passive:true});
 game.addEventListener('touchmove', e=>{ let dx=e.touches[0].clientX-startX; x=Math.max(5,Math.min(85,x+dx*0.25)); updatePlayer(); startX=e.touches[0].clientX; }, {passive:true});
 function run(){
  setInterval(()=>{
@@ -95,14 +65,14 @@ function run(){
   let fall=setInterval(()=>{
     if(!playing){clearInterval(fall); return;}
     y+=speed; c.style.top=y+'px';
-    if(y>260 && Math.abs(parseInt(c.style.left)-x)<6){ playing=false; playCrash(); if(score>best){best=score; localStorage.setItem('best',best);} document.getElementById('final').innerText='Score: '+score+' | Coins: '+coins+' | Best: '+best; document.getElementById('over').style.display='block'; }
+    if(y>260 && Math.abs(parseInt(c.style.left)-x)<6){ playing=false; if(score>best){best=score; localStorage.setItem('best',best);} document.getElementById('final').innerText='Score: '+score+' | Coins: '+coins+' | Best: '+best; document.getElementById('over').style.display='block'; }
     if(y>480){ c.remove(); clearInterval(fall); score+=10; if(score%100==0){level++;} document.getElementById('score').innerText=score; }
   },30);
  },1200);
  setInterval(()=>{
   if(!playing) return;
   let co=document.createElement('div'); co.className='coin'; co.innerHTML='💰'; co.style.left=Math.random()*85+'%'; co.style.top='-30px'; game.appendChild(co);
-  let y=-30; let f2=setInterval(()=>{ if(!playing){clearInterval(f2); return;} y+=7; co.style.top=y+'px'; if(y>260 && Math.abs(parseInt(co.style.left)-x)<9){ coins++; playCoin(); document.getElementById('coins').innerText=coins; co.remove(); clearInterval(f2);} if(y>480){co.remove(); clearInterval(f2);} },30);
+  let y=-30; let f2=setInterval(()=>{ if(!playing){clearInterval(f2); return;} y+=7; co.style.top=y+'px'; if(y>260 && Math.abs(parseInt(co.style.left)-x)<9){ coins++; document.getElementById('coins').innerText=coins; co.remove(); clearInterval(f2);} if(y>480){co.remove(); clearInterval(f2);} },30);
  },1800);
 }
 </script>
