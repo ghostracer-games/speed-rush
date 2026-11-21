@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>SPEED RUSH</title>
 <style>
-body{margin:0;background:#111;color:#fff;text-align:center;font-family:sans-serif}
-#top{background:#ffcc00;color:#000;padding:12px;font-weight:bold}
-#game{width:94%;max-width:420px;height:55vh;background:#222;position:relative;overflow:hidden;margin:10px auto;border:2px solid #fff;border-radius:10px}
+body{margin:0;background:#111;color:#fff;text-align:center;font-family:Arial,sans-serif;touch-action:none;overflow:hidden}
+#top{background:#ffcc00;color:#000;padding:12px;font-weight:bold;direction:ltr}
+#game{width:94%;max-width:420px;height:58vh;background:#222;position:relative;overflow:hidden;margin:10px auto;border:2px solid #fff;border-radius:10px;direction:ltr}
 .road{position:absolute;width:6px;height:100%;background:#fff;opacity:.3;top:0}
 #player{position:absolute;bottom:100px;left:45%;font-size:50px;z-index:10}
 .car{position:absolute;font-size:46px}
 .coin{position:absolute;font-size:30px}
 button{font-size:20px;padding:12px 20px;margin:5px;border-radius:10px;background:#ffcc00;border:none;font-weight:bold}
-.ctrl{font-size:28px;padding:12px 30px;background:#333;color:#fff;border:2px solid #ffcc00}
+.ctrl{font-size:28px;padding:15px 35px;background:#333;color:#fff;border:2px solid #ffcc00}
 #over{display:none;position:absolute;top:25%;left:5%;right:5%;background:#000;padding:20px;border:3px solid #ffcc00;border-radius:15px;z-index:20}
 </style></head>
 <body>
@@ -18,27 +18,33 @@ button{font-size:20px;padding:12px 20px;margin:5px;border-radius:10px;background
 <div id="game">
 <div class="road" style="left:25%"></div><div class="road" style="left:50%"></div><div class="road" style="left:75%"></div>
 <div id="player">🏎️</div>
-<div id="over"><h2>💥 GAME OVER</h2><p id="final"></p><button onclick="location.reload()">🔄 العب عاود</button><br><button onclick="share()">📤 بارطاجي مع صحابك</button></div>
+<div id="over"><h2>💥 انتهت اللعبة</h2><p id="final"></p><button onclick="location.reload()">🔄 العب من جديد</button><br><button onclick="share()">📤 شارك مع أصدقائك</button></div>
 </div>
-<button onclick="startGame()">▶️ ابدا اللعب</button><br>
+<button onclick="startGame()">▶️ ابدأ اللعب</button>
+<button onclick="toggleSound()" id="sndBtn">🔊 الصوت: شغال</button><br>
 <button class="ctrl" onclick="moveBtn(-1)">⬅️</button>
 <button class="ctrl" onclick="moveBtn(1)">➡️</button>
-<p>جمع الفلوس 💰 و تفادى الطوموبيلات 🚗</p>
+<p>اجمع الفلوس 💰 وتفادى السيارات 🚗</p>
+<p>حرك إصبعك في أي مكان لتحريك السيارة</p>
 <script>
-let x=45,score=0,coins=0,playing=false,best=localStorage.getItem('best')||0;
+let x=45,score=0,coins=0,playing=false,best=localStorage.getItem('best')||0,soundOn=true;
 document.getElementById('best').innerText=best;
 let game=document.getElementById('game');
+function beep(f){if(!soundOn)return;try{let a=new (window.AudioContext||window.webkitAudioContext)();let o=a.createOscillator();o.frequency.value=f;o.connect(a.destination);o.start();o.stop(a.currentTime+0.1);}catch(e){}}
+function toggleSound(){soundOn=!soundOn;document.getElementById('sndBtn').innerText=soundOn?'🔊 الصوت: شغال':'🔇 الصوت: مطفي';}
 function moveBtn(d){x=Math.max(5,Math.min(85,x+d*12));document.getElementById('player').style.left=x+'%';}
-function startGame(){if(playing)return;playing=true;run();}
-function share(){let t='جبت '+score+' فـ SPEED RUSH واش تقدر تجيب كتر مني؟ العب هنا: '+location.href;if(navigator.share){navigator.share({text:t})}else{prompt('كوبي و بارطاجي:',t)}}
+function startGame(){if(playing)return;playing=true;beep(600);run();}
+function share(){let t='جبت '+score+' في SPEED RUSH، هل تقدر تجيب أكثر مني؟ العب هنا: '+location.href;if(navigator.share){navigator.share({text:t})}else{prompt('انسخ وشارك:',t)}}
 document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')moveBtn(-1);if(e.key==='ArrowRight')moveBtn(1);});
-let sx=0;game.addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
-game.addEventListener('touchmove',e=>{let dx=e.touches[0].clientX-sx;x=Math.max(5,Math.min(85,x+dx*0.3));document.getElementById('player').style.left=x+'%';sx=e.touches[0].clientX},{passive:true});
+// تحكم باللمس في كل الشاشة
+let lastX=0;
+function moveByTouch(clientX){let r=game.getBoundingClientRect();let p=((clientX-r.left)/r.width)*100;x=Math.max(5,Math.min(85,p));document.getElementById('player').style.left=x+'%';}
+document.body.addEventListener('touchstart',e=>{lastX=e.touches[0].clientX;moveByTouch(lastX);},{passive:true});
+document.body.addEventListener('touchmove',e=>{e.preventDefault();moveByTouch(e.touches[0].clientX);},{passive:false});
+document.body.addEventListener('mousemove',e=>{if(playing) moveByTouch(e.clientX);});
 function run(){
-setInterval(()=>{if(!playing)return;let c=document.createElement('div');c.className='car';let cars=['🚕','🚙','🚚','🚓'];c.innerHTML=cars[Math.floor(Math.random()*cars.length)];c.style.left=Math.random()*85+'%';c.style.top='-60px';game.appendChild(c);let y=-60;let f=setInterval(()=>{if(!playing){clearInterval(f);return} y+=2.2;c.style.top=y+'px';if(y>260&&y<320&&Math.abs(parseInt(c.style.left)-x)<3){playing=false;if(score>best){best=score;localStorage.setItem('best',best)}document.getElementById('final').innerText='Score: '+score+' | Coins: '+coins+' | Best: '+best;document.getElementById('over').style.display='block';}if(y>480){c.remove();clearInterval(f);score+=10;document.getElementById('score').innerText=score;}},30);},1800);
-setInterval(()=>{if(!playing)return;let co=document.createElement('div');co.className='coin';co.innerHTML='💰';co.style.left=Math.random()*85+'%';co.style.top='-30px';game.appendChild(co);let y=-30;let f2=setInterval(()=>{if(!playing){clearInterval(f2);return} y+=4;co.style.top=y+'px';if(y>260&&Math.abs(parseInt(co.style.left)-x)<10){coins++;document.getElementById('coins').innerText=coins;co.remove();clearInterval(f2);}if(y>480){co.remove();clearInterval(f2);}},30);},1400);
+setInterval(()=>{if(!playing)return;let c=document.createElement('div');c.className='car';let cars=['🚕','🚙','🚚','🚓'];c.innerHTML=cars[Math.floor(Math.random()*cars.length)];c.style.left=Math.random()*85+'%';c.style.top='-60px';game.appendChild(c);let y=-60;let f=setInterval(()=>{if(!playing){clearInterval(f);return} y+=2.2;c.style.top=y+'px';if(y>260&&y<320&&Math.abs(parseInt(c.style.left)-x)<3){playing=false;beep(150);if(score>best){best=score;localStorage.setItem('best',best)}document.getElementById('final').innerText='النقاط: '+score+' | الفلوس: '+coins+' | الأفضل: '+best;document.getElementById('over').style.display='block';}if(y>480){c.remove();clearInterval(f);score+=10;document.getElementById('score').innerText=score;}},30);},1800);
+setInterval(()=>{if(!playing)return;let co=document.createElement('div');co.className='coin';co.innerHTML='💰';co.style.left=Math.random()*85+'%';co.style.top='-30px';game.appendChild(co);let y=-30;let f2=setInterval(()=>{if(!playing){clearInterval(f2);return} y+=4;co.style.top=y+'px';if(y>260&&Math.abs(parseInt(co.style.left)-x)<10){coins++;beep(900);document.getElementById('coins').innerText=coins;co.remove();clearInterval(f2);}if(y>480){co.remove();clearInterval(f2);}},30);},1400);
 }
 </script>
 </body></html>
-
-*لصقها و قولي ليا واش خدمة مزيان؟*
