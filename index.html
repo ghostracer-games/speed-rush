@@ -1,1 +1,98 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Speed Rush - اربح و العب</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#0f0f1a;color:#fff;font-family:system-ui;overflow:hidden;touch-action:none}
+#game{position:relative;width:100vw;height:100vh;max-width:480px;margin:0 auto;background:linear-gradient(#1a1a2e,#16213e);overflow:hidden}
+#road{position:absolute;left:50%;transform:translateX(-50%);width:78%;height:100%;background:#222;border-left:3px solid #ffd700;border-right:3px solid #ffd700}
+.lane{position:absolute;top:0;width:3px;height:100%;background:repeating-linear-gradient(#fff 0 30px,transparent 30px 60px);opacity:.5}
+#player{position:absolute;width:48px;height:78px;background:#ff4757;border-radius:12px 12px 6px 6px;z-index:10;box-shadow:0 0 20px #ff4757;transition:left .08s}
+#player:before{content:"🏎️";font-size:42px;position:absolute;left:3px;top:12px}
+.enemy{position:absolute;width:48px;height:78px;border-radius:12px 12px 6px 6px;z-index:5}
+.coin{position:absolute;width:34px;height:34px;background:#ffd700;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:6;box-shadow:0 0 15px #ffd700}
+#hud{position:absolute;top:0;left:0;right:0;padding:12px;display:flex;justify-content:space-between;z-index:20;background:linear-gradient(rgba(0,0,0,.7),transparent);font-weight:800}
+#hud div{background:rgba(0,0,0,.6);padding:6px 10px;border-radius:20px;font-size:14px}
+#controls{position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;z-index:30}
+.btn{width:70px;height:70px;background:rgba(255,255,255,.2);border:2px solid #fff;border-radius:50%;font-size:32px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+#startScreen,#gameOver{position:absolute;inset:0;background:rgba(0,0,0,.85);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+h1{font-size:38px;color:#ffd700;margin-bottom:5px}
+h1 span{color:#ff4757}
+p{opacity:.8;margin:8px 0;line-height:1.6}
+.bigBtn{background:#ffd700;color:#000;border:none;padding:15px 35px;border-radius:30px;font-size:20px;font-weight:900;margin-top:15px;cursor:pointer;width:90%}
+.bigBtn2{background:#ff4757;color:#fff;border:none;padding:12px 25px;border-radius:30px;font-size:16px;font-weight:800;margin-top:10px;cursor:pointer}
+#adBox{background:#222;border:1px dashed #ffd700;padding:10px;border-radius:12px;margin-top:15px;font-size:12px;width:90%}
+.hidden{display:none!important}
+#levelUp{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);background:#ffd700;color:#000;padding:15px 25px;border-radius:20px;font-weight:900;font-size:22px;z-index:40}
+</style>
+</head>
+<body>
+<div id="game">
+<div id="road"></div>
+<div id="hud"><div>💰 <span id="coins">0</span></div><div>⭐ <span id="score">0</span></div><div>🏁 ليفل <span id="level">1</span></div></div>
+<div id="player"></div>
+<div id="controls"><div class="btn" id="leftBtn">◀️</div><div class="btn" id="rightBtn">▶️</div></div>
+<div id="levelUp" class="hidden">🎉 ليفل جديد!</div>
+<div id="startScreen">
+<h1>SPEED <span>RUSH</span> 🏎️</h1>
+<p>جمع الفلوس 💰 و هرب من الطوموبيلات!<br>التصادم دابا عادل 100% - خاص يقيسك بصح باش تخسر</p>
+<p>🎮 حرك بالأسهم ولا بالبوطونات<br>💰 جمع 10 دراهم = ليفل جديد</p>
+<div id="adBox">📢 هنا غادي تكون الإشهارات و تدخل الفلوس<br>كل 1000 لاعب = فلوس حقيقية</div>
+<button class="bigBtn" onclick="startGame()">▶️ العب دابا - فابور</button>
+<button class="bigBtn2" onclick="shareGame()">📤 بارطاجي مع صحابك و ربح</button>
+<p style="font-size:12px">صايبها Maati Raghi 🇲🇦</p>
+</div>
+<div id="gameOver" class="hidden">
+<h1>💥 خسرتي!</h1>
+<p id="finalScore" style="font-size:20px;font-weight:800"></p>
+<p>بغيتي ترجع الفلوس ديالك؟ بارطاجي اللعبة!</p>
+<button class="bigBtn" onclick="startGame()">🔄 العب عاود</button>
+<button class="bigBtn2" onclick="shareGame()">📤 بارطاجي باش تربح</button>
+<div id="adBox">💡 نصيحة: إلا بارطاجيتي مع 10 ديال صحابك و لعبوها، تقدر تدير Google AdSense و تبدا تدخل الفلوس</div>
+</div>
+</div>
+<script>
+let playerX=50,score=0,coins=0,level=1,speed=4,playing=false,enemies=[],coinsArr=[],gameLoop;
+let road=document.getElementById('road');
+for(let i=1;i<4;i++){let l=document.createElement('div');l.className='lane';l.style.left=(i*25)+'%';road.appendChild(l);}
+let player=document.getElementById('player');
+function placePlayer(){player.style.left=(playerX/100*document.getElementById('game').offsetWidth -24)+'px';player.style.bottom='110px';}
+placePlayer();
+function startGame(){document.getElementById('startScreen').classList.add('hidden');document.getElementById('gameOver').classList.add('hidden');score=0;coins=0;level=1;speed=4;playerX=50;enemies.forEach(e=>e.el.remove());coinsArr.forEach(c=>c.el.remove());enemies=[];coinsArr=[];playing=true;updateHUD();clearInterval(gameLoop);gameLoop=setInterval(update,16);}
+function updateHUD(){document.getElementById('coins').textContent=coins;document.getElementById('score').textContent=score;document.getElementById('level').textContent=level;}
+function spawnEnemy(){let el=document.createElement('div');el.className='enemy';let colors=['#2ed573','#1e90ff','#eccc68','#ff6b81','#a55eea'];el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.left=(10+Math.random()*70)+'%';el.style.top='-90px';el.innerHTML='<div style="font-size:40px;text-align:center;margin-top:15px">🚗</div>';document.getElementById('game').appendChild(el);enemies.push({el,y:-90,x:parseFloat(el.style.left)});}
+function spawnCoin(){let el=document.createElement('div');el.className='coin';el.textContent='💰';el.style.left=(12+Math.random()*68)+'%';el.style.top='-40px';document.getElementById('game').appendChild(el);coinsArr.push({el,y:-40,x:parseFloat(el.style.left)});}
+let frame=0;
+function update(){
+frame++;score++;if(frame%70==0)spawnEnemy();if(frame%45==0)spawnCoin();
+if(score%500==0){level=Math.floor(score/500)+1;speed=4+level*0.6;let lu=document.getElementById('levelUp');lu.classList.remove('hidden');setTimeout(()=>lu.classList.add('hidden'),1200);}
+let gw=document.getElementById('game').offsetWidth,gh=document.getElementById('game').offsetHeight;
+let px=playerX/100*gw, py=gh-110-78, pw=48, ph=78;
+// HITBOX مصلوح: صغرنا التصادم ب 40% باش ما تخسرش بلا سبب
+let hitX=px+12, hitY=py+18, hitW=24, hitH=42;
+enemies.forEach((e,idx)=>{e.y+=speed;e.el.style.top=e.y+'px';
+let ex=e.x/100*gw+12, ey=e.y+18, ew=24, eh=42;
+if(hitX < ex+ew && hitX+hitW > ex && hitY < ey+eh && hitY+hitH > ey){gameOver();}
+if(e.y>gh){e.el.remove();enemies.splice(idx,1);}
+});
+coinsArr.forEach((c,idx)=>{c.y+=speed;c.el.style.top=c.y+'px';
+let cx=c.x/100*gw, cy=c.y;
+if(Math.abs(px-cx)<40 && Math.abs((gh-110)-cy)<60){coins+=1;c.el.remove();coinsArr.splice(idx,1);updateHUD();}
+if(c.y>gh){c.el.remove();coinsArr.splice(idx,1);}
+});
+placePlayer();updateHUD();
+}
+function gameOver(){playing=false;clearInterval(gameLoop);document.getElementById('finalScore').textContent=`جمعتي ${coins} 💰 و ${score} نقطة - ليفل ${level}`;document.getElementById('gameOver').classList.remove('hidden');}
+document.getElementById('leftBtn').addEventListener('touchstart',()=>{if(playerX>15)playerX-=9;placePlayer();});
+document.getElementById('rightBtn').addEventListener('touchstart',()=>{if(playerX<85)playerX+=9;placePlayer();});
+document.addEventListener('keydown',e=>{if(e.key=='ArrowLeft'&&playerX>15)playerX-=7;if(e.key=='ArrowRight'&&playerX<85)playerX+=7;placePlayer();});
+let touchX=null;document.getElementById('game').addEventListener('touchmove',e=>{let t=e.touches[0];if(touchX!==null){let dx=(t.clientX-touchX)/window.innerWidth*100;playerX=Math.max(12,Math.min(88,playerX+dx));placePlayer();}touchX=t.clientX;});
+document.getElementById('game').addEventListener('touchend',()=>touchX=null);
+function shareGame(){let txt='شوف هاد اللعبة واعرة! 🏎️💰 جمعت '+coins+' فلوس! العبها دابا فابور: https://raghimaati.github.io/speed-rush';if(navigator.share){navigator.share({text:txt,url:'https://raghimaati.github.io/speed-rush'});}else{navigator.clipboard.writeText(txt);alert('تم نسخ الرابط! صيفطو لصحابك 📤');}}
+</script>
+</body>
+</html>
