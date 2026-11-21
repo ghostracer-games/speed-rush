@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Speed Rush V2</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;font-family:Arial,sans-serif;overflow:hidden}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:#000;font-family:Arial,sans-serif;overflow:hidden;touch-action:none}
 #game{width:100vw;height:100vh;max-width:450px;margin:0 auto;position:relative;background:#111;overflow:hidden}
 #road{position:absolute;left:50%;transform:translateX(-50%);width:85%;height:100%;background:#2b2b2b;border-left:4px solid #fff;border-right:4px solid #fff}
-.line{position:absolute;width:6px;height:50px;background:#fff;left:50%;transform:translateX(-50%);border-radius:3px}
+.line{position:absolute;width:6px;height:50px;background:#fff;border-radius:3px}
 #player{position:absolute;width:50px;height:80px;z-index:10;left:50%;bottom:100px;transform:translateX(-50%);font-size:55px;text-align:center;line-height:80px;filter:drop-shadow(0 0 10px red)}
 .enemy{position:absolute;width:50px;height:80px;z-index:5;font-size:55px;text-align:center;line-height:80px}
 .coin{position:absolute;width:35px;height:35px;z-index:6;font-size:28px;text-align:center}
@@ -41,7 +41,7 @@ body{background:#000;font-family:Arial,sans-serif;overflow:hidden}
 <div id="menu" class="screen">
 <h1>SPEED <span>RUSH</span> V2</h1>
 <p>New Game. New Start. From Zero.</p>
-<p>💰 Collect Coins<br>🏎️ Dodge Cars<br>🏆 Beat Your Record</p>
+<p>💰 Collect Coins<br>🏎️ Dodge Cars<br>👆 Drag Your Finger To Move</p>
 <div class="ad">📢 AD SPACE - Earn Money Here<br>Your AdSense will be here</div>
 <button class="big" onclick="start()">▶ PLAY NOW</button>
 <button class="small" onclick="share()">📤 SHARE & EARN</button>
@@ -62,9 +62,8 @@ let x=50,score=0,coins=0,level=1,speed=5,run=false,timer,enemies=[],coinsArr=[],
 let game=document.getElementById('game');
 let player=document.getElementById('player');
 let road=document.getElementById('road');
-// Road lines
-for(let i=0;i<6;i++){let d=document.createElement('div');d.className='line';d.style.top=(i*160)+'px';road.appendChild(d);document.querySelectorAll('.line').forEach(l=>l.style.left='33%');}
-let line2=document.createElement('div');line2.className='line';line2.style.left='66%';line2.style.top='80px';road.appendChild(line2);
+for(let i=0;i<6;i++){let d=document.createElement('div');d.className='line';d.style.top=(i*160)+'px';d.style.left='33%';road.appendChild(d);}
+for(let i=0;i<6;i++){let d=document.createElement('div');d.className='line';d.style.top=(i*160+80)+'px';d.style.left='66%';road.appendChild(d);}
 
 function drawPlayer(){ player.style.left = (x/100*game.offsetWidth -25)+'px'; }
 drawPlayer();
@@ -99,7 +98,6 @@ if(frame%40==0) newCoin();
 if(score%400==0){ level=Math.floor(score/400)+1; speed=5+level*0.7; }
 let gw=game.offsetWidth, gh=game.offsetHeight;
 let px=x/100*gw, py=gh-100-80;
-// FAIR HITBOX - 50% smaller, only center counts
 let hx=px-10, hy=py+20, hw=20, hh=40;
 enemies.forEach((e,i)=>{
 e.y+=speed; e.el.style.top=e.y+'px';
@@ -114,7 +112,6 @@ if(Math.abs(px-cx)<38 && Math.abs((gh-100)-cy)<55){ coins++; c.el.remove(); coin
 if(c.y>gh){ c.el.remove(); coinsArr.splice(i,1); }
 });
 drawPlayer(); updateHUD();
-// Animate road
 document.querySelectorAll('.line').forEach(l=>{
 let t=parseInt(l.style.top)||0; t+=speed; if(t>gh) t=-50; l.style.top=t+'px';
 });
@@ -124,6 +121,7 @@ run=false; clearInterval(timer);
 document.getElementById('final').textContent=`You got ${coins} coins 💰 | ${score} points | Level ${level}`;
 document.getElementById('over').classList.remove('hidden');
 }
+// BUTTONS
 document.getElementById('L').addEventListener('touchstart',()=>{ if(x>15) x-=12; drawPlayer(); });
 document.getElementById('R').addEventListener('touchstart',()=>{ if(x<85) x+=12; drawPlayer(); });
 document.addEventListener('keydown',e=>{
@@ -131,6 +129,23 @@ if(e.key=='ArrowLeft'&&x>15) x-=8;
 if(e.key=='ArrowRight'&&x<85) x+=8;
 drawPlayer();
 });
+// DRAG - FIXED! Car follows your finger
+let isDragging=false;
+function moveCar(fingerX){
+  let rect=game.getBoundingClientRect();
+  let newX=(fingerX-rect.left)/rect.width*100;
+  x=Math.max(12,Math.min(88,newX));
+  drawPlayer();
+}
+game.addEventListener('touchstart',(e)=>{ isDragging=true; moveCar(e.touches[0].clientX); },{passive:true});
+game.addEventListener('touchmove',(e)=>{ if(isDragging){ e.preventDefault(); moveCar(e.touches[0].clientX); } },{passive:false});
+game.addEventListener('touchend',()=>{ isDragging=false; });
+// MOUSE DRAG FOR PC
+let mouseDown=false;
+game.addEventListener('mousedown',(e)=>{ mouseDown=true; moveCar(e.clientX); });
+game.addEventListener('mousemove',(e)=>{ if(mouseDown) moveCar(e.clientX); });
+game.addEventListener('mouseup',()=>{ mouseDown=false; });
+
 function share(){
 let t='Play SPEED RUSH V2! 🏎️💰 I got '+coins+' coins! Play FREE: https://raghimaati.github.io/speed-rush';
 if(navigator.share) navigator.share({text:t,url:'https://raghimaati.github.io/speed-rush'});
