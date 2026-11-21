@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPEED RUSH PRO</title>
+<style>
+body{margin:0;background:#0a0a0a;color:white;text-align:center;font-family:sans-serif}
+#top{background:#ffcc00;color:black;padding:10px;font-weight:bold;font-size:18px}
+#game{width:92%;height:58vh;background:#2b2b2b;position:relative;overflow:hidden;margin:auto;border:2px solid white}
+.road{position:absolute;width:8px;height:100%;background:white;opacity:0.4;top:0}
+#player{position:absolute;bottom:110px;left:45%;font-size:55px;z-index:10}
+.car{position:absolute;font-size:48px;z-index:5}
+.coin{position:absolute;font-size:32px;z-index:5}
+#over{display:none;position:absolute;top:30%;left:10%;right:10%;background:rgba(0,0,0,0.95);padding:20px;border:3px solid #ffcc00;border-radius:15px;z-index:20}
+button{font-size:22px;padding:12px 20px;margin:5px;border-radius:12px;background:#ffcc00;border:none;font-weight:bold}
+.ctrl{font-size:30px;padding:15px 35px;background:#333;color:white;border:2px solid #ffcc00}
+.car-select{font-size:40px;padding:10px;margin:5px;border:3px solid transparent;border-radius:10px;background:#222;cursor:pointer}
+.car-select.active{border-color:#ffcc00;background:#444}
+</style></head>
+<body>
+<div id="top">🚗 SPEED RUSH PRO | Score: <span id="score">0</span> | 💰 <span id="coins">0</span> | Best: <span id="best">0</span> | <span id="speed">0</span> KM/H</div>
+<div id="game">
+<div class="road" style="left:25%"></div><div class="road" style="left:50%"></div><div class="road" style="left:75%"></div>
+<div id="player">🏎️</div>
+<div id="over"><h2>💥 GAME OVER!</h2><p id="final"></p><button onclick="location.reload()">🔄 PLAY AGAIN</button></div>
+</div>
+<p>Choose Your Car:</p>
+<div>
+<button class="car-select active" onclick="pickCar('🏎️',this)">🏎️</button>
+<button class="car-select" onclick="pickCar('🚗',this)">🚗</button>
+<button class="car-select" onclick="pickCar('🚙',this)">🚙</button>
+<button class="car-select" onclick="pickCar('🏁',this)">🏁</button>
+</div>
+<br>
+<button onclick="startGame()">▶️ START GAME</button><br>
+<button class="ctrl" onclick="moveBtn(-1)">⬅️</button>
+<button class="ctrl" onclick="moveBtn(1)">➡️</button>
+<p>Easy Mode 😍 - Move with mouse or finger - Have Fun!</p>
+<script>
+let x=45, score=0, coins=0, level=1, playing=false, best=localStorage.getItem('best')||0;
+document.getElementById('best').innerText=best;
+let game=document.getElementById('game');
+function pickCar(c,el){ document.getElementById('player').innerText=c; document.querySelectorAll('.car-select').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+function updatePlayer(){ document.getElementById('player').style.left=x+'%'; }
+function moveBtn(d){ x=Math.max(5,Math.min(85,x+d*10)); updatePlayer(); }
+function startGame(){ if(playing) return; playing=true; run(); }
+document.addEventListener('mousemove', e=>{
+  let rect=game.getBoundingClientRect();
+  if(e.clientY>rect.top && e.clientY<rect.bottom){
+    let pos=((e.clientX-rect.left)/rect.width)*100;
+    x=Math.max(5,Math.min(85,pos)); updatePlayer();
+  }
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowLeft'){ x=Math.max(5,x-10); updatePlayer(); }
+  if(e.key==='ArrowRight'){ x=Math.min(85,x+10); updatePlayer(); }
+});
+let startX=0;
+game.addEventListener('touchstart', e=>{ startX=e.touches[0].clientX; }, {passive:true});
+game.addEventListener('touchmove', e=>{ let dx=e.touches[0].clientX-startX; x=Math.max(5,Math.min(85,x+dx*0.25)); updatePlayer(); startX=e.touches[0].clientX; }, {passive:true});
+function run(){
+ setInterval(()=>{
+  if(!playing) return;
+  let c=document.createElement('div'); c.className='car'; let cars=['🚕','🚙','🚚','🚛','🚓']; c.innerHTML=cars[Math.floor(Math.random()*cars.length)]; c.style.left=Math.random()*85+'%'; c.style.top='-60px'; game.appendChild(c);
+  let y=-60; let speed=3+level*0.4;
+  document.getElementById('speed').innerText=Math.round(speed*20);
+  let fall=setInterval(()=>{
+    if(!playing){clearInterval(fall); return;}
+    y+=speed; c.style.top=y+'px';
+    if(y>260 && Math.abs(parseInt(c.style.left)-x)<6){ playing=false; if(score>best){best=score; localStorage.setItem('best',best);} document.getElementById('final').innerText='Score: '+score+' | Coins: '+coins+' | Best: '+best; document.getElementById('over').style.display='block'; }
+    if(y>480){ c.remove(); clearInterval(fall); score+=10; if(score%100==0){level++;} document.getElementById('score').innerText=score; }
+  },30);
+ },1200);
+ setInterval(()=>{
+  if(!playing) return;
+  let co=document.createElement('div'); co.className='coin'; co.innerHTML='💰'; co.style.left=Math.random()*85+'%'; co.style.top='-30px'; game.appendChild(co);
+  let y=-30; let f2=setInterval(()=>{ if(!playing){clearInterval(f2); return;} y+=7; co.style.top=y+'px'; if(y>260 && Math.abs(parseInt(co.style.left)-x)<9){ coins++; document.getElementById('coins').innerText=coins; co.remove(); clearInterval(f2);} if(y>480){co.remove(); clearInterval(f2);} },30);
+ },1800);
+}
+</script>
+</body></html>
