@@ -60,20 +60,20 @@ function run(){
  setInterval(()=>{
   if(!playing) return;
   let c=document.createElement('div'); c.className='car'; let cars=['🚕','🚙','🚚','🚛','🚓']; c.innerHTML=cars[Math.floor(Math.random()*cars.length)]; c.style.left=Math.random()*85+'%'; c.style.top='-60px'; game.appendChild(c);
-  let y=-60; let speed=3+level*0.4;
+  let y=-60; let speed=1.8+level*0.2;
   document.getElementById('speed').innerText=Math.round(speed*20);
   let fall=setInterval(()=>{
     if(!playing){clearInterval(fall); return;}
     y+=speed; c.style.top=y+'px';
-    if(y>260 && Math.abs(parseInt(c.style.left)-x)<6){ playing=false; if(score>best){best=score; localStorage.setItem('best',best);} document.getElementById('final').innerText='Score: '+score+' | Coins: '+coins+' | Best: '+best; document.getElementById('over').style.display='block'; }
-    if(y>480){ c.remove(); clearInterval(fall); score+=10; if(score%100==0){level++;} document.getElementById('score').innerText=score; }
+    if(y>260 && y<330 && Math.abs(parseInt(c.style.left)-x)<4){ playing=false; if(score>best){best=score; localStorage.setItem('best',best);} document.getElementById('final').innerText='Score: '+score+' | Coins: '+coins+' | Best: '+best; document.getElementById('over').style.display='block'; }
+    if(y>480){ c.remove(); clearInterval(fall); score+=10; if(score%200==0){level++;} document.getElementById('score').innerText=score; }
   },30);
- },1200);
+ },1700);
  setInterval(()=>{
   if(!playing) return;
   let co=document.createElement('div'); co.className='coin'; co.innerHTML='💰'; co.style.left=Math.random()*85+'%'; co.style.top='-30px'; game.appendChild(co);
-  let y=-30; let f2=setInterval(()=>{ if(!playing){clearInterval(f2); return;} y+=7; co.style.top=y+'px'; if(y>260 && Math.abs(parseInt(co.style.left)-x)<9){ coins++; document.getElementById('coins').innerText=coins; co.remove(); clearInterval(f2);} if(y>480){co.remove(); clearInterval(f2);} },30);
- },1800);
+  let y=-30; let f2=setInterval(()=>{ if(!playing){clearInterval(f2); return;} y+=5; co.style.top=y+'px'; if(y>260 && Math.abs(parseInt(co.style.left)-x)<10){ coins++; document.getElementById('coins').innerText=coins; co.remove(); clearInterval(f2);} if(y>480){co.remove(); clearInterval(f2);} },30);
+ },1500);
 }
 </script>
 </body></html>
