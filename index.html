@@ -65,16 +65,16 @@ button{padding:15px 30px;border:none;border-radius:30px;background:#ffcc00;font-
 <audio id="coinSnd" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_2c8c1b7f2d.mp3?filename=coin-257878.mp3" preload="auto"></audio>
 <audio id="crashSnd" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_9c1f3f1c0a.mp3?filename=car-crash-100184.mp3" preload="auto"></audio>
 <audio id="nitroSnd" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_3c2d1b0b0a.mp3?filename=whoosh-6316.mp3" preload="auto"></audio>
-<audio id="engineSnd" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_1a2b3c4d5e.mp3?filename=car-engine-123.mp3" preload="auto" loop></audio>
+<audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2023/09/29/audio_1c2e0a0e0a.mp3?filename=racing-game-music-170660.mp3" preload="auto" loop></audio>
 <script>
 let playing=false,score=0,coins=0,best=localStorage.getItem('sr_best')||0,playerX=50,speed=3,nitro=100,nitroOn=false,spawnTimer=0,coinTimer=0,soundOn=true;
 document.getElementById('best').textContent=best;document.getElementById('best2').textContent=best;
-let coinA=document.getElementById('coinSnd'),crashA=document.getElementById('crashSnd'),nitroA=document.getElementById('nitroSnd');
-function playSnd(a){if(!soundOn||!a)return;a.currentTime=0;a.play().catch(()=>{});}
-document.getElementById('soundBtn').onclick=e=>{e.stopPropagation();soundOn=!soundOn;document.getElementById('soundBtn').textContent=soundOn?'🔊 SOUND ON':'🔇 SOUND OFF';};
+let coinA=document.getElementById('coinSnd'),crashA=document.getElementById('crashSnd'),nitroA=document.getElementById('nitroSnd'),bgMusic=document.getElementById('bgMusic');
+function playSnd(a){if(!soundOn||!a)return;a.volume=0.3;a.currentTime=0;a.play().catch(()=>{});}
+document.getElementById('soundBtn').onclick=e=>{e.stopPropagation();soundOn=!soundOn;document.getElementById('soundBtn').textContent=soundOn?'🔊 SOUND ON':'🔇 SOUND OFF';if(!soundOn){bgMusic.pause();}else if(playing){bgMusic.volume=0.25;bgMusic.play().catch(()=>{});}};
 document.querySelectorAll('.carOpt').forEach(el=>el.onclick=()=>{document.querySelectorAll('.carOpt').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');document.getElementById('player').textContent=el.dataset.car;playSnd(coinA);});
-function showMenu(){document.getElementById('over').style.display='none';document.getElementById('menu').style.display='flex';playing=false;}
-function startGame(){document.getElementById('menu').style.display='none';document.getElementById('over').style.display='none';document.querySelectorAll('.car,.coin').forEach(e=>e.remove());score=0;coins=0;playerX=50;speed=3;nitro=100;playing=true;updateHUD();setPlayer();playSnd(nitroA);}
+function showMenu(){document.getElementById('over').style.display='none';document.getElementById('menu').style.display='flex';playing=false;bgMusic.pause();}
+function startGame(){document.getElementById('menu').style.display='none';document.getElementById('over').style.display='none';document.querySelectorAll('.car,.coin').forEach(e=>e.remove());score=0;coins=0;playerX=50;speed=3;nitro=100;playing=true;updateHUD();setPlayer();if(soundOn){bgMusic.volume=0.25;bgMusic.play().catch(()=>{});}playSnd(nitroA);}
 document.getElementById('playBtn').onclick=startGame;document.getElementById('againBtn').onclick=startGame;document.getElementById('menuBtn').onclick=showMenu;
 function updateHUD(){document.getElementById('score').textContent=Math.floor(score);document.getElementById('coins').textContent=coins;document.getElementById('best').textContent=best;document.getElementById('nitroFill').style.width=nitro+'%';}
 function setPlayer(){document.getElementById('player').style.left='calc('+playerX+'% - 28px)';}
@@ -91,7 +91,7 @@ document.addEventListener('keyup',e=>{if(e.key==' ')nitroOn=false;});
 let nb=document.getElementById('nitroBtn');nb.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();nitroOn=true;playSnd(nitroA);});nb.addEventListener('touchend',()=>nitroOn=false);nb.addEventListener('mousedown',e=>{e.stopPropagation();nitroOn=true;playSnd(nitroA);});nb.addEventListener('mouseup',()=>nitroOn=false);
 function spawnCar(){let c=document.createElement('div');c.className='car';c.textContent=Math.random()<0.15?'🚓':['🚕','🚚','🚐','🚛'][Math.floor(Math.random()*4)];c.style.left=(8+Math.random()*76)+'%';c.style.top='-100px';game.appendChild(c);}
 function spawnCoin(){let c=document.createElement('div');c.className='coin';c.textContent='💰';c.style.left=(10+Math.random()*75)+'%';c.style.top='-40px';game.appendChild(c);}
-function gameOver(){playing=false;playSnd(crashA);if(score>best){best=Math.floor(score);localStorage.setItem('sr_best',best);}document.getElementById('finalScore').textContent=Math.floor(score);document.getElementById('finalCoins').textContent=coins;document.getElementById('finalBest').textContent=best;document.getElementById('over').style.display='flex';navigator.vibrate&&navigator.vibrate(300);}
+function gameOver(){playing=false;bgMusic.pause();playSnd(crashA);if(score>best){best=Math.floor(score);localStorage.setItem('sr_best',best);}document.getElementById('finalScore').textContent=Math.floor(score);document.getElementById('finalCoins').textContent=coins;document.getElementById('finalBest').textContent=best;document.getElementById('over').style.display='flex';navigator.vibrate&&navigator.vibrate(300);}
 function loop(){
 if(playing){
 let cur=speed+(nitroOn&&nitro>0?3:0);
