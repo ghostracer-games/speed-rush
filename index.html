@@ -48,7 +48,7 @@ p{opacity:.85;margin:10px 0;line-height:1.7}
 <button class="bigBtn2" onclick="shareGame()">📤 بارطاجي مع صحابك</button>
 <p style="font-size:12px">صايبها Maati Raghi 🇲🇦</p>
 </div>
-<div id="screen" class="hidden" style="display:none" id="overScreen">
+<div id="overScreen" style="position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center">
 <h1 style="color:#ff4757">💥 خسرتي!</h1>
 <p id="finalScore" style="font-size:20px;font-weight:800"></p>
 <button class="bigBtn" onclick="startGame()">🔄 العب عاود</button>
@@ -58,10 +58,9 @@ p{opacity:.85;margin:10px 0;line-height:1.7}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 let scene,camera,renderer,player,playerGroup;
-let enemies=[],coinsArr=[],trees=[],buildings=[];
+let enemies=[],coinsArr=[],trees=[];
 let playing=false,score=0,coins=0,level=1,speed=0,maxSpeed=180,playerX=0;
 let keys={left:false,right:false,gas:false,brake:false};
-let roadSegments=[];
 
 function init(){
 scene=new THREE.Scene();
@@ -73,24 +72,18 @@ renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;
 document.getElementById('gameWrap').appendChild(renderer.domElement);
-
 let sun=new THREE.DirectionalLight(0xffffff,1.2);
 sun.position.set(10,20,10); sun.castShadow=true; scene.add(sun);
 scene.add(new THREE.AmbientLight(0xffffff,0.6));
-
-// grass
 let grass=new THREE.Mesh(new THREE.PlaneGeometry(200,400),new THREE.MeshLambertMaterial({color:0x2ecc71}));
 grass.rotation.x=-Math.PI/2; grass.position.z=-80; grass.receiveShadow=true; scene.add(grass);
-// road
-let roadMat=new THREE.MeshLambertMaterial({color:0x222222});
 for(let i=0;i<6;i++){
-let r=new THREE.Mesh(new THREE.PlaneGeometry(12,70),roadMat);
-r.rotation.x=-Math.PI/2; r.position.set(0,0.02,-i*65); r.receiveShadow=true; scene.add(r); roadSegments.push(r);
+let r=new THREE.Mesh(new THREE.PlaneGeometry(12,70),new THREE.MeshLambertMaterial({color:0x222222}));
+r.rotation.x=-Math.PI/2; r.position.set(0,0.02,-i*65); r.receiveShadow=true; scene.add(r);
 let line=new THREE.Mesh(new THREE.PlaneGeometry(0.3,70),new THREE.MeshBasicMaterial({color:0xffffff}));
 line.rotation.x=-Math.PI/2; line.position.set(-2,0.03,-i*65); scene.add(line);
 let line2=line.clone(); line2.position.x=2; scene.add(line2);
 }
-// side trees + buildings
 for(let i=0;i<40;i++){
 let t=new THREE.Group();
 let trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,2),new THREE.MeshLambertMaterial({color:0x8B4513}));
@@ -101,7 +94,6 @@ let side=i%2==0?-1:1;
 t.position.set(side*(8+Math.random()*4),0,-i*8+10);
 scene.add(t); trees.push(t);
 }
-// player car - detailed
 playerGroup=new THREE.Group();
 let body=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.6,3.6),new THREE.MeshLambertMaterial({color:0xff4757}));
 body.position.y=0.7; body.castShadow=true; playerGroup.add(body);
@@ -109,9 +101,8 @@ let cabin=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.55,1.8),new THREE.MeshLambe
 cabin.position.set(0,1.25,-0.2); cabin.castShadow=true; playerGroup.add(cabin);
 let spoiler=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.1,0.4),new THREE.MeshLambertMaterial({color:0x000000}));
 spoiler.position.set(0,1.05,1.8); playerGroup.add(spoiler);
-let wheelMat=new THREE.MeshLambertMaterial({color:0x000000});
 [[ -0.9, -1.2],[0.9,-1.2],[-0.9,1.2],[0.9,1.2]].forEach(p=>{
-let w=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.3,12),wheelMat);
+let w=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.3,12),new THREE.MeshLambertMaterial({color:0x000000}));
 w.rotation.z=Math.PI/2; w.position.set(p[0],0.35,p[1]); playerGroup.add(w);
 });
 let light=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.2,0.1),new THREE.MeshBasicMaterial({color:0xffff00}));
@@ -163,7 +154,6 @@ if(keys.left) playerX=Math.max(-3.8,playerX-0.12-speed*0.0006);
 if(keys.right) playerX=Math.min(3.8,playerX+0.12+speed*0.0006);
 player.position.x+= (playerX - player.position.x)*0.2;
 player.rotation.z= -(playerX - player.position.x)*0.08;
-player.rotation.y= -(playerX - player.position.x)*0.05;
 score+= speed*0.02;
 if(Math.floor(score/800)+1>level){level=Math.floor(score/800)+1; maxSpeed=180+level*15; let lu=document.getElementById('levelUp'); lu.style.display='block'; setTimeout(()=>lu.style.display='none',1300);}
 let spawnRate=Math.max(35,90-level*8);
@@ -177,12 +167,10 @@ enemies.push({mesh:car,speed: 30+Math.random()*20});
 if(frame%40==0){
 let coin=makeCoin(); coin.position.set([-3,0,3][Math.floor(Math.random()*3)],1,-90); scene.add(coin); coinsArr.push({mesh:coin});
 }
-// move world
 let move=speed*0.05;
 enemies.forEach((e,i)=>{
 e.mesh.position.z+= move + e.speed*0.05;
 if(e.mesh.position.z>15){scene.remove(e.mesh); enemies.splice(i,1); return;}
-// collision - precise hitbox
 if(Math.abs(e.mesh.position.z - player.position.z)<3.2 && Math.abs(e.mesh.position.x - player.position.x)<1.5){gameOver();}
 });
 coinsArr.forEach((c,i)=>{
