@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Speed Rush 3D - سوق و ربح</title>
-<meta property="og:title" content="Speed Rush 3D 🏎️">
-<meta property="og:description" content="لعبة 3D واعرة! سوق، جمع الفلوس، و هرب من الطوموبيلات!">
+<title>Speed Rush 3D</title>
+<meta property="og:title" content="Speed Rush 3D">
+<meta property="og:description" content="Real 3D car game! Drive, collect coins, dodge traffic!">
 <meta property="og:type" content="website">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -21,11 +21,11 @@ canvas{display:block}
 .btn:active{background:#ffd700}
 #gas{background:rgba(0,200,0,.35)}
 #brake{background:rgba(255,0,0,.35)}
-#screen{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
-#screen.hidden{display:none!important}
-h1{font-size:42px;color:#ffd700;line-height:1}
+#soundBtn{position:fixed;top:62px;right:15px;z-index:40;background:rgba(0,0,0,.6);border:1px solid #fff;padding:8px 12px;border-radius:20px;cursor:pointer;font-size:16px}
+#screen{position:fixed;inset:0;background:linear-gradient(180deg,#0f2027,#2c5364);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+h1{font-size:44px;color:#ffd700;line-height:1}
 h1 span{color:#ff4757}
-p{opacity:.85;margin:10px 0;line-height:1.7}
+p{opacity:.9;margin:10px 0;line-height:1.7}
 .bigBtn{background:#ffd700;color:#000;border:none;padding:16px 30px;border-radius:30px;font-size:20px;font-weight:900;margin-top:12px;width:92%;max-width:360px;cursor:pointer}
 .bigBtn2{background:#fff;color:#000;border:none;padding:12px 20px;border-radius:30px;font-size:16px;font-weight:800;margin-top:10px;width:92%;max-width:360px;cursor:pointer}
 #levelUp{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);background:#ffd700;color:#000;padding:14px 22px;border-radius:18px;font-weight:900;font-size:22px;z-index:40;display:none}
@@ -33,176 +33,283 @@ p{opacity:.85;margin:10px 0;line-height:1.7}
 </head>
 <body>
 <div id="gameWrap"></div>
-<div id="hud"><div>💰 <span id="coins">0</span></div><div>⭐ <span id="score">0</span></div><div>🏁 ليفل <span id="level">1</span></div></div>
+<div id="hud"><div>💰 <span id="coins">0</span></div><div>⭐ <span id="score">0</span></div><div>🏁 LEVEL <span id="level">1</span></div></div>
 <div id="speed"><span id="speedVal">0</span><small>KM/H</small></div>
+<button id="soundBtn" onclick="toggleSound()">🔊 SOUND ON</button>
 <div id="controls">
 <div style="display:flex;gap:12px"><div class="btn" id="leftBtn">◀️</div><div class="btn" id="rightBtn">▶️</div></div>
 <div style="display:flex;gap:12px"><div class="btn" id="brake">🛑</div><div class="btn" id="gas">🚀</div></div>
 </div>
-<div id="levelUp">🎉 ليفل جديد!</div>
+<div id="levelUp">🎉 NEW LEVEL!</div>
 <div id="screen">
-<h1>SPEED <span>RUSH</span> 3D 🏎️</h1>
-<p>لعبة 3D حقيقية<br>سوق، جمع الفلوس 💰 و هرب من الطوموبيلات</p>
-<p style="font-size:13px">🎮 PC: الأسهم ◀️ ▶️ و W للسرعة<br>📱 تليفون: البوطونات لتحت</p>
-<button class="bigBtn" onclick="startGame()">▶️ العب دابا - فابور</button>
-<button class="bigBtn2" onclick="shareGame()">📤 بارطاجي مع صحابك</button>
-<p style="font-size:12px">صايبها Maati Raghi 🇲🇦</p>
+<h1>SPEED <span>RUSH</span> 3D</h1>
+<p>Real 3D Racing<br>Drive, collect coins 💰 and dodge traffic!</p>
+<p style="font-size:13px">PC: Arrow Keys + W for Speed<br>Phone: Use buttons below</p>
+<button class="bigBtn" onclick="startGame()">▶️ PLAY NOW - FREE</button>
+<button class="bigBtn2" onclick="shareGame()">📤 SHARE WITH FRIENDS</button>
+<p style="font-size:12px">Made by Maati Raghi 🇲🇦</p>
 </div>
-<div id="overScreen" style="position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center">
-<h1 style="color:#ff4757">💥 خسرتي!</h1>
+<div id="overScreen" style="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center">
+<h1 style="color:#ff4757">💥 CRASHED!</h1>
 <p id="finalScore" style="font-size:20px;font-weight:800"></p>
-<button class="bigBtn" onclick="startGame()">🔄 العب عاود</button>
-<button class="bigBtn2" onclick="shareGame()">📤 بارطاجي باش تربح</button>
+<button class="bigBtn" onclick="startGame()">🔄 PLAY AGAIN</button>
+<button class="bigBtn2" onclick="shareGame()">📤 SHARE</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-let scene,camera,renderer,player,playerGroup;
-let enemies=[],coinsArr=[],trees=[];
+let scene,camera,renderer,player;
+let enemies=[],coinsArr=[],sideObjs=[];
 let playing=false,score=0,coins=0,level=1,speed=0,maxSpeed=180,playerX=0;
 let keys={left:false,right:false,gas:false,brake:false};
+let soundOn=true, audioCtx=null, engineOsc=null, engineGain=null;
+let curve=0, distance=0;
 
+function initAudio(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  if(!engineOsc){
+    engineOsc=audioCtx.createOscillator(); engineOsc.type='sawtooth'; engineOsc.frequency.value=60;
+    engineGain=audioCtx.createGain(); engineGain.gain.value=0;
+    let filter=audioCtx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.value=400;
+    engineOsc.connect(filter); filter.connect(engineGain); engineGain.connect(audioCtx.destination); engineOsc.start();
+  }
+}
+function toggleSound(){ soundOn=!soundOn; document.getElementById('soundBtn').textContent=soundOn?'🔊 SOUND ON':'🔇 SOUND OFF'; if(engineGain) engineGain.gain.value=soundOn&&playing?0.05:0; }
+function playCoin(){
+  if(!soundOn||!audioCtx) return;
+  let o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sine'; o.frequency.setValueAtTime(900,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1400,audioCtx.currentTime+0.12);
+  g.gain.setValueAtTime(0.2,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.2);
+  o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.2);
+}
+function playCrash(){
+  if(!soundOn||!audioCtx) return;
+  let o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(200,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(30,audioCtx.currentTime+0.5);
+  g.gain.setValueAtTime(0.4,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.6);
+  o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.6);
+}
 function init(){
 scene=new THREE.Scene();
 scene.background=new THREE.Color(0x87CEEB);
-scene.fog=new THREE.Fog(0x87CEEB,40,120);
-camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,0.1,300);
-camera.position.set(0,5.2,9.5);
+scene.fog=new THREE.Fog(0x87CEEB,50,140);
+camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,0.1,400);
+camera.position.set(0,5.5,10);
 renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight);
 renderer.shadowMap.enabled=true;
 document.getElementById('gameWrap').appendChild(renderer.domElement);
-let sun=new THREE.DirectionalLight(0xffffff,1.2);
-sun.position.set(10,20,10); sun.castShadow=true; scene.add(sun);
-scene.add(new THREE.AmbientLight(0xffffff,0.6));
-let grass=new THREE.Mesh(new THREE.PlaneGeometry(200,400),new THREE.MeshLambertMaterial({color:0x2ecc71}));
-grass.rotation.x=-Math.PI/2; grass.position.z=-80; grass.receiveShadow=true; scene.add(grass);
-for(let i=0;i<6;i++){
-let r=new THREE.Mesh(new THREE.PlaneGeometry(12,70),new THREE.MeshLambertMaterial({color:0x222222}));
-r.rotation.x=-Math.PI/2; r.position.set(0,0.02,-i*65); r.receiveShadow=true; scene.add(r);
-let line=new THREE.Mesh(new THREE.PlaneGeometry(0.3,70),new THREE.MeshBasicMaterial({color:0xffffff}));
-line.rotation.x=-Math.PI/2; line.position.set(-2,0.03,-i*65); scene.add(line);
-let line2=line.clone(); line2.position.x=2; scene.add(line2);
+let sun=new THREE.DirectionalLight(0xffffff,1.2); sun.position.set(15,25,10); sun.castShadow=true; scene.add(sun);
+scene.add(new THREE.AmbientLight(0xffffff,0.65));
+let grass=new THREE.Mesh(new THREE.PlaneGeometry(300,500),new THREE.MeshLambertMaterial({color:0x3cb371}));
+grass.rotation.x=-Math.PI/2; grass.position.z=-100; grass.receiveShadow=true; scene.add(grass);
+// road - wider, with sidewalk
+let road=new THREE.Mesh(new THREE.PlaneGeometry(14,500),new THREE.MeshLambertMaterial({color:0x2b2b2b}));
+road.rotation.x=-Math.PI/2; road.position.set(0,0.02,-100); road.receiveShadow=true; scene.add(road);
+// dashed center lines
+for(let i=0;i<60;i++){
+  let dash=new THREE.Mesh(new THREE.PlaneGeometry(0.25,3),new THREE.MeshBasicMaterial({color:0xffffff}));
+  dash.rotation.x=-Math.PI/2; dash.position.set(-2.3,0.04,-i*8); scene.add(dash); sideObjs.push({mesh:dash,isRoadMark:true,baseX:-2.3});
+  let dash2=dash.clone(); dash2.position.x=2.3; scene.add(dash2); sideObjs.push({mesh:dash2,isRoadMark:true,baseX:2.3});
+  let edge=new THREE.Mesh(new THREE.PlaneGeometry(0.4,8),new THREE.MeshBasicMaterial({color:0xffd700}));
+  edge.rotation.x=-Math.PI/2; edge.position.set(-6.8,0.04,-i*8); scene.add(edge); sideObjs.push({mesh:edge,isRoadMark:true,baseX:-6.8});
+  let edge2=edge.clone(); edge2.position.x=6.8; scene.add(edge2); sideObjs.push({mesh:edge2,isRoadMark:true,baseX:6.8});
 }
-for(let i=0;i<40;i++){
-let t=new THREE.Group();
-let trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,2),new THREE.MeshLambertMaterial({color:0x8B4513}));
-trunk.position.y=1; t.add(trunk);
-let leaves=new THREE.Mesh(new THREE.SphereGeometry(1.2,8,8),new THREE.MeshLambertMaterial({color:0x006400}));
-leaves.position.y=3; leaves.castShadow=true; t.add(leaves);
-let side=i%2==0?-1:1;
-t.position.set(side*(8+Math.random()*4),0,-i*8+10);
-scene.add(t); trees.push(t);
+// houses + trees + lamps on sides
+let houseColors=[0xffffff,0xffd1a9,0xa9d1ff,0xffa9a9,0xd1ffb0];
+for(let i=0;i<28;i++){
+  let z=-i*16-5;
+  let side=i%2==0?-1:1;
+  if(i%3==0){
+    // HOUSE
+    let h=new THREE.Group();
+    let color=houseColors[Math.floor(Math.random()*houseColors.length)];
+    let walls=new THREE.Mesh(new THREE.BoxGeometry(6,4,6),new THREE.MeshLambertMaterial({color:color}));
+    walls.position.y=2; walls.castShadow=true; h.add(walls);
+    let roof=new THREE.Mesh(new THREE.ConeGeometry(5,2.5,4),new THREE.MeshLambertMaterial({color:0x8B0000}));
+    roof.position.y=5.2; roof.rotation.y=Math.PI/4; roof.castShadow=true; h.add(roof);
+    let door=new THREE.Mesh(new THREE.BoxGeometry(1.2,2,0.2),new THREE.MeshLambertMaterial({color:0x5a2d0c}));
+    door.position.set(0,1,3.05); h.add(door);
+    [-1.8,1.8].forEach(x=>{
+      let win=new THREE.Mesh(new THREE.BoxGeometry(1,1,0.2),new THREE.MeshLambertMaterial({color:0x87CEEB,emissive:0x333333}));
+      win.position.set(x,2.5,3.05); h.add(win);
+    });
+    h.position.set(side*(13+Math.random()*2),0,z);
+    scene.add(h); sideObjs.push({mesh:h,baseX:side*(13+Math.random()*2),isHouse:true});
+  } else {
+    // TREE
+    let t=new THREE.Group();
+    let trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.3,2.5),new THREE.MeshLambertMaterial({color:0x6b3a0a}));
+    trunk.position.y=1.25; t.add(trunk);
+    let leaves=new THREE.Mesh(new THREE.SphereGeometry(1.6,10,10),new THREE.MeshLambertMaterial({color:0x0a7a2a}));
+    leaves.position.y=3.6; leaves.castShadow=true; t.add(leaves);
+    let leaves2=new THREE.Mesh(new THREE.SphereGeometry(1.1,10,10),new THREE.MeshLambertMaterial({color:0x12a035}));
+    leaves2.position.set(0.7,4.4,0.3); t.add(leaves2);
+    t.position.set(side*(10+Math.random()*3),0,z);
+    scene.add(t); sideObjs.push({mesh:t,baseX:side*(10+Math.random()*3)});
+  }
+  // STREET LAMP
+  if(i%2==0){
+    let lamp=new THREE.Group();
+    let pole=new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.12,6),new THREE.MeshLambertMaterial({color:0x333333}));
+    pole.position.y=3; lamp.add(pole);
+    let bulb=new THREE.Mesh(new THREE.SphereGeometry(0.4,8,8),new THREE.MeshBasicMaterial({color:0xffff99}));
+    bulb.position.y=6.2; lamp.add(bulb);
+    lamp.position.set(side*7.5,0,z+4);
+    scene.add(lamp); sideObjs.push({mesh:lamp,baseX:side*7.5});
+  }
 }
-playerGroup=new THREE.Group();
-let body=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.6,3.6),new THREE.MeshLambertMaterial({color:0xff4757}));
-body.position.y=0.7; body.castShadow=true; playerGroup.add(body);
-let cabin=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.55,1.8),new THREE.MeshLambertMaterial({color:0x111111}));
-cabin.position.set(0,1.25,-0.2); cabin.castShadow=true; playerGroup.add(cabin);
-let spoiler=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.1,0.4),new THREE.MeshLambertMaterial({color:0x000000}));
-spoiler.position.set(0,1.05,1.8); playerGroup.add(spoiler);
-[[ -0.9, -1.2],[0.9,-1.2],[-0.9,1.2],[0.9,1.2]].forEach(p=>{
-let w=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.3,12),new THREE.MeshLambertMaterial({color:0x000000}));
-w.rotation.z=Math.PI/2; w.position.set(p[0],0.35,p[1]); playerGroup.add(w);
-});
-let light=new THREE.Mesh(new THREE.BoxGeometry(1.6,0.2,0.1),new THREE.MeshBasicMaterial({color:0xffff00}));
-light.position.set(0,0.8,-1.85); playerGroup.add(light);
-scene.add(playerGroup);
-player=playerGroup;
+player=makeCar(0xff2d55,true);
+player.position.set(0,0,0);
+scene.add(player);
 animate();
 }
-function makeEnemyCar(color){
-let g=new THREE.Group();
-let b=new THREE.Mesh(new THREE.BoxGeometry(1.8,0.6,3.6),new THREE.MeshLambertMaterial({color:color}));
-b.position.y=0.7; b.castShadow=true; g.add(b);
-let c=new THREE.Mesh(new THREE.BoxGeometry(1.5,0.55,1.8),new THREE.MeshLambertMaterial({color:0x111111}));
-c.position.set(0,1.25,-0.2); g.add(c);
-[[ -0.9, -1.2],[0.9,-1.2],[-0.9,1.2],[0.9,1.2]].forEach(p=>{
-let w=new THREE.Mesh(new THREE.CylinderGeometry(0.35,0.35,0.3,12),new THREE.MeshLambertMaterial({color:0x000000}));
-w.rotation.z=Math.PI/2; w.position.set(p[0],0.35,p[1]); g.add(w);
-});
-return g;
+function makeCar(color,isPlayer){
+  let g=new THREE.Group();
+  // lower body - sleek
+  let body=new THREE.Mesh(new THREE.BoxGeometry(1.9,0.55,4.2),new THREE.MeshLambertMaterial({color:color}));
+  body.position.y=0.65; body.castShadow=true; g.add(body);
+  // nose
+  let nose=new THREE.Mesh(new THREE.BoxGeometry(1.7,0.35,0.8),new THREE.MeshLambertMaterial({color:color}));
+  nose.position.set(0,0.55,-2.4); g.add(nose);
+  // cabin with glass
+  let cabin=new THREE.Mesh(new THREE.BoxGeometry(1.55,0.6,2.1),new THREE.MeshLambertMaterial({color:0x0a0a0a}));
+  cabin.position.set(0,1.2,0.2); cabin.castShadow=true; g.add(cabin);
+  let roof=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.12,1.8),new THREE.MeshLambertMaterial({color:color}));
+  roof.position.set(0,1.55,0.2); g.add(roof);
+  // windshield
+  let wind=new THREE.Mesh(new THREE.BoxGeometry(1.45,0.5,0.1),new THREE.MeshLambertMaterial({color:0x9fd8ff,transparent:true,opacity:0.7}));
+  wind.position.set(0,1.2,-0.95); wind.rotation.x=0.4; g.add(wind);
+  // headlights
+  [-0.6,0.6].forEach(x=>{
+    let hl=new THREE.Mesh(new THREE.BoxGeometry(0.45,0.18,0.1),new THREE.MeshBasicMaterial({color:0xfff9a0}));
+    hl.position.set(x,0.7,-2.82); g.add(hl);
+    let tl=new THREE.Mesh(new THREE.BoxGeometry(0.45,0.15,0.1),new THREE.MeshBasicMaterial({color:0xff0000}));
+    tl.position.set(x,0.75,2.12); g.add(tl);
+  });
+  // spoiler
+  let sp=new THREE.Mesh(new THREE.BoxGeometry(1.9,0.08,0.4),new THREE.MeshLambertMaterial({color:0x111111}));
+  sp.position.set(0,1.05,1.95); g.add(sp);
+  let spL=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.35,0.1),new THREE.MeshLambertMaterial({color:0x111111}));
+  spL.position.set(-0.7,0.85,1.95); g.add(spL);
+  let spR=spL.clone(); spR.position.x=0.7; g.add(spR);
+  // wheels - bigger, with rims
+  [[-1, -1.4],[1,-1.4],[-1,1.4],[1,1.4]].forEach(p=>{
+    let w=new THREE.Group();
+    let tire=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.32,16),new THREE.MeshLambertMaterial({color:0x111111}));
+    tire.rotation.z=Math.PI/2; w.add(tire);
+    let rim=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.34,12),new THREE.MeshLambertMaterial({color:0xcccccc}));
+    rim.rotation.z=Math.PI/2; w.add(rim);
+    w.position.set(p[0],0.42,p[1]); g.add(w);
+  });
+  // side mirrors
+  [-1.05,1.05].forEach(x=>{
+    let m=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.15,0.25),new THREE.MeshLambertMaterial({color:0x111111}));
+    m.position.set(x,1.15,-0.5); g.add(m);
+  });
+  return g;
 }
 function makeCoin(){
-let g=new THREE.Group();
-let m=new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.15,20),new THREE.MeshLambertMaterial({color:0xffd700,emissive:0xaa8800}));
-m.rotation.x=Math.PI/2; g.add(m);
-return g;
+  let g=new THREE.Group();
+  let m=new THREE.Mesh(new THREE.CylinderGeometry(0.7,0.7,0.18,24),new THREE.MeshLambertMaterial({color:0xffd700,emissive:0x886600}));
+  m.rotation.x=Math.PI/2; g.add(m);
+  let inner=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.45,0.2,24),new THREE.MeshLambertMaterial({color:0xfff176}));
+  inner.rotation.x=Math.PI/2; g.add(inner);
+  return g;
 }
 function startGame(){
-document.getElementById('screen').style.display='none';
-document.getElementById('overScreen').style.display='none';
-enemies.forEach(e=>scene.remove(e.mesh)); coinsArr.forEach(c=>scene.remove(c.mesh));
-enemies=[]; coinsArr=[]; score=0; coins=0; level=1; speed=0; playerX=0; playing=true;
-updateHUD();
+  initAudio();
+  document.getElementById('screen').style.display='none';
+  document.getElementById('overScreen').style.display='none';
+  enemies.forEach(e=>scene.remove(e.mesh)); coinsArr.forEach(c=>scene.remove(c.mesh));
+  enemies=[]; coinsArr=[]; score=0; coins=0; level=1; speed=0; playerX=0; distance=0; playing=true;
+  if(engineGain) engineGain.gain.value=soundOn?0.05:0;
+  updateHUD();
 }
 function updateHUD(){
-document.getElementById('coins').textContent=coins;
-document.getElementById('score').textContent=Math.floor(score);
-document.getElementById('level').textContent=level;
-document.getElementById('speedVal').textContent=Math.floor(speed);
+  document.getElementById('coins').textContent=coins;
+  document.getElementById('score').textContent=Math.floor(score);
+  document.getElementById('level').textContent=level;
+  document.getElementById('speedVal').textContent=Math.floor(speed);
 }
 let frame=0;
 function animate(){
-requestAnimationFrame(animate);
-if(playing){
-frame++;
-if(keys.gas) speed=Math.min(maxSpeed,speed+1.2);
-else if(keys.brake) speed=Math.max(0,speed-3);
-else speed=Math.max(0,speed-0.3);
-if(keys.left) playerX=Math.max(-3.8,playerX-0.12-speed*0.0006);
-if(keys.right) playerX=Math.min(3.8,playerX+0.12+speed*0.0006);
-player.position.x+= (playerX - player.position.x)*0.2;
-player.rotation.z= -(playerX - player.position.x)*0.08;
-score+= speed*0.02;
-if(Math.floor(score/800)+1>level){level=Math.floor(score/800)+1; maxSpeed=180+level*15; let lu=document.getElementById('levelUp'); lu.style.display='block'; setTimeout(()=>lu.style.display='none',1300);}
-let spawnRate=Math.max(35,90-level*8);
-if(frame%spawnRate==0){
-let colors=[0x2ed573,0x1e90ff,0xeccc68,0xa55eea,0xffffff,0xff6b81];
-let car=makeEnemyCar(colors[Math.floor(Math.random()*colors.length)]);
-let lane=[-3,0,3][Math.floor(Math.random()*3)];
-car.position.set(lane,0,-90); scene.add(car);
-enemies.push({mesh:car,speed: 30+Math.random()*20});
-}
-if(frame%40==0){
-let coin=makeCoin(); coin.position.set([-3,0,3][Math.floor(Math.random()*3)],1,-90); scene.add(coin); coinsArr.push({mesh:coin});
-}
-let move=speed*0.05;
-enemies.forEach((e,i)=>{
-e.mesh.position.z+= move + e.speed*0.05;
-if(e.mesh.position.z>15){scene.remove(e.mesh); enemies.splice(i,1); return;}
-if(Math.abs(e.mesh.position.z - player.position.z)<3.2 && Math.abs(e.mesh.position.x - player.position.x)<1.5){gameOver();}
-});
-coinsArr.forEach((c,i)=>{
-c.mesh.position.z+=move; c.mesh.rotation.y+=0.1;
-if(c.mesh.position.z>15){scene.remove(c.mesh); coinsArr.splice(i,1); return;}
-if(Math.abs(c.mesh.position.z - player.position.z)<2 && Math.abs(c.mesh.position.x - player.position.x)<1.2){coins+=1; scene.remove(c.mesh); coinsArr.splice(i,1);}
-});
-trees.forEach(t=>{t.position.z+=move; if(t.position.z>15) t.position.z=-180;});
-camera.position.x=player.position.x*0.6;
-camera.position.z=player.position.z+9.5;
-camera.lookAt(player.position.x,1.5,player.position.z-10);
-}
-updateHUD();
-renderer.render(scene,camera);
+  requestAnimationFrame(animate);
+  if(playing){
+    frame++; distance+=speed*0.02;
+    // CURVE - road bends
+    curve=Math.sin(distance*0.015)*3.5;
+    if(keys.gas) speed=Math.min(maxSpeed,speed+1.1);
+    else if(keys.brake) speed=Math.max(0,speed-3.5);
+    else speed=Math.max(0,speed-0.25);
+    // steering + curve pushes you
+    if(keys.left) playerX=Math.max(-4,playerX-0.14-speed*0.0006);
+    if(keys.right) playerX=Math.min(4,playerX+0.14+speed*0.0006);
+    playerX+=curve*0.002;
+    player.position.x+= (playerX - player.position.x)*0.22;
+    player.rotation.z= -(playerX - player.position.x)*0.1 - curve*0.01;
+    player.rotation.y= -(playerX - player.position.x)*0.08;
+    score+= speed*0.02;
+    if(engineOsc && soundOn) engineOsc.frequency.value=50+speed*0.8;
+    if(Math.floor(score/800)+1>level){level=Math.floor(score/800)+1; maxSpeed=180+level*15; let lu=document.getElementById('levelUp'); lu.style.display='block'; setTimeout(()=>lu.style.display='none',1300);}
+    let spawnRate=Math.max(35,90-level*8);
+    if(frame%spawnRate==0){
+      let colors=[0x2ed573,0x1e90ff,0xffc312,0xa55eea,0xffffff,0x00d2d3,0xff6b81];
+      let car=makeCar(colors[Math.floor(Math.random()*colors.length)],false);
+      let lane=[-4.5,0,4.5][Math.floor(Math.random()*3)];
+      car.position.set(lane,0,-110); car.rotation.y=Math.PI; scene.add(car);
+      enemies.push({mesh:car,speed:28+Math.random()*22,lane:lane});
+    }
+    if(frame%38==0){
+      let coin=makeCoin(); let lane=[-4.5,0,4.5][Math.floor(Math.random()*3)]; coin.position.set(lane,1.1,-110); scene.add(coin); coinsArr.push({mesh:coin,lane:lane});
+    }
+    let move=speed*0.055;
+    enemies.forEach((e,i)=>{
+      e.mesh.position.z+= move + e.speed*0.055;
+      // follow curve
+      let targetX=e.lane + Math.sin((e.mesh.position.z+distance)*0.015)*3.5;
+      e.mesh.position.x+=(targetX-e.mesh.position.x)*0.05;
+      if(e.mesh.position.z>16){scene.remove(e.mesh); enemies.splice(i,1); return;}
+      if(Math.abs(e.mesh.position.z - player.position.z)<3.4 && Math.abs(e.mesh.position.x - player.position.x)<1.6){gameOver();}
+    });
+    coinsArr.forEach((c,i)=>{
+      c.mesh.position.z+=move; c.mesh.rotation.y+=0.12;
+      let targetX=c.lane + Math.sin((c.mesh.position.z+distance)*0.015)*3.5;
+      c.mesh.position.x+=(targetX-c.mesh.position.x)*0.05;
+      if(c.mesh.position.z>16){scene.remove(c.mesh); coinsArr.splice(i,1); return;}
+      if(Math.abs(c.mesh.position.z - player.position.z)<2.2 && Math.abs(c.mesh.position.x - player.position.x)<1.3){coins+=1; playCoin(); scene.remove(c.mesh); coinsArr.splice(i,1);}
+    });
+    sideObjs.forEach(o=>{
+      o.mesh.position.z+=move;
+      if(o.isRoadMark){ if(o.mesh.position.z>15) o.mesh.position.z-=480; }
+      else { if(o.mesh.position.z>20) o.mesh.position.z-=440; }
+      // apply curve offset
+      if(!o.isRoadMark) o.mesh.position.x=o.baseX + Math.sin((o.mesh.position.z+distance)*0.015)*3.5;
+      else o.mesh.position.x=o.baseX + Math.sin((o.mesh.position.z+distance)*0.015)*3.5;
+    });
+    camera.position.x=player.position.x*0.55;
+    camera.position.z=player.position.z+10;
+    camera.lookAt(player.position.x,1.6,player.position.z-12);
+  }
+  updateHUD();
+  renderer.render(scene,camera);
 }
 function gameOver(){
-playing=false;
-document.getElementById('finalScore').textContent=`جمعتي ${coins} 💰 و ${Math.floor(score)} نقطة - وصلتي ليفل ${level}`;
-document.getElementById('overScreen').style.display='flex';
-try{let a=new AudioContext(); let o=a.createOscillator(); o.frequency.value=80; o.connect(a.destination); o.start(); setTimeout(()=>o.stop(),400);}catch(e){}
+  playing=false; playCrash();
+  if(engineGain) engineGain.gain.value=0;
+  document.getElementById('finalScore').textContent=`You collected ${coins} coins and ${Math.floor(score)} points - You reached LEVEL ${level}`;
+  document.getElementById('overScreen').style.display='flex';
 }
 function bindBtn(id,key){
-let el=document.getElementById(id);
-let on=e=>{e.preventDefault(); keys[key]=true;};
-let off=e=>{e.preventDefault(); keys[key]=false;};
-el.addEventListener('touchstart',on); el.addEventListener('touchend',off);
-el.addEventListener('mousedown',on); el.addEventListener('mouseup',off); el.addEventListener('mouseleave',off);
+  let el=document.getElementById(id);
+  let on=e=>{e.preventDefault(); initAudio(); keys[key]=true;};
+  let off=e=>{e.preventDefault(); keys[key]=false;};
+  el.addEventListener('touchstart',on); el.addEventListener('touchend',off);
+  el.addEventListener('mousedown',on); el.addEventListener('mouseup',off); el.addEventListener('mouseleave',off);
 }
 bindBtn('leftBtn','left'); bindBtn('rightBtn','right'); bindBtn('gas','gas'); bindBtn('brake','brake');
-addEventListener('keydown',e=>{if(e.key=='ArrowLeft')keys.left=true; if(e.key=='ArrowRight')keys.right=true; if(e.key=='ArrowUp'||e.key=='w')keys.gas=true; if(e.key=='ArrowDown'||e.key=='s')keys.brake=true;});
+addEventListener('keydown',e=>{initAudio(); if(e.key=='ArrowLeft')keys.left=true; if(e.key=='ArrowRight')keys.right=true; if(e.key=='ArrowUp'||e.key=='w')keys.gas=true; if(e.key=='ArrowDown'||e.key=='s')keys.brake=true;});
 addEventListener('keyup',e=>{if(e.key=='ArrowLeft')keys.left=false; if(e.key=='ArrowRight')keys.right=false; if(e.key=='ArrowUp'||e.key=='w')keys.gas=false; if(e.key=='ArrowDown'||e.key=='s')keys.brake=false;});
-function shareGame(){let txt='شوف هاد اللعبة 3D واعرة! 🏎️💰 جمعت '+coins+' فلوس! العبها دابا فابور: '+location.href; if(navigator.share){navigator.share({text:txt,url:location.href});} else {navigator.clipboard.writeText(txt); alert('تم نسخ الرابط! صيفطو لصحابك 📤');}}
+function shareGame(){let txt='Check this 3D car game! I collected '+coins+' coins! Play FREE: '+location.href; if(navigator.share){navigator.share({text:txt,url:location.href});} else {navigator.clipboard.writeText(txt); alert('Link copied! Send it to friends');}}
 init();
 </script>
 </body>
