@@ -1,12 +1,100 @@
 <!DOCTYPE html>
-<html><body style="background:#000;color:#fff;text-align:center;padding-top:100px;font-family:system-ui">
-<h1>SPEED RUSH TEST</h1>
-<button id="playBtn" style="background:yellow;padding:20px 40px;font-size:24px;border-radius:20px">▶️ PLAY NOW</button>
-<p id="msg">مازال ما تبركاتش</p>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Speed Rush 3D City</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;touch-action:none;-webkit-tap-highlight-color:transparent}
+body{background:#000;color:#fff;font-family:system-ui;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh}
+#hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:10px;z-index:20;pointer-events:none}
+#hud div{background:rgba(0,0,0,.65);padding:8px 12px;border-radius:20px;font-weight:900}
+#speed{position:fixed;bottom:150px;right:12px;background:rgba(0,0,0,.7);padding:10px;border-radius:12px;font-weight:900;font-size:22px;border:2px solid #ffd700;z-index:20}
+#controls{position:fixed;bottom:12px;left:0;right:0;display:flex;justify-content:space-between;padding:0 10px;z-index:30}
+.btn{width:80px;height:80px;background:rgba(255,255,255,.35);border:2px solid #fff;border-radius:50%;font-size:30px;display:flex;align-items:center;justify-content:center}
+.btn:active{background:#ffd700}
+#gas{background:rgba(0,200,0,.6);width:95px;height:95px}
+#brake{background:rgba(255,0,0,.6)}
+#screen{position:fixed;inset:0;background:linear-gradient(180deg,#0f2027,#2c5364);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+.bigBtn{background:#ffd700;color:#000;border:none;padding:16px 24px;border-radius:30px;font-size:22px;font-weight:900;margin-top:15px;width:92%;max-width:340px}
+#over{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
+</style></head>
+<body>
+<canvas id="game"></canvas>
+<div id="hud"><div>💰 <span id="coins">0</span></div><div>⭐ <span id="score">0</span></div><div>🏁 LV <span id="level">1</span></div></div>
+<div id="speed"><span id="speedVal">0</span> KM/H</div>
+<div id="controls">
+<div style="display:flex;gap:10px"><div class="btn" id="leftBtn">◀️</div><div class="btn" id="rightBtn">▶️</div></div>
+<div style="display:flex;gap:10px"><div class="btn" id="brake">🛑</div><div class="btn" id="gas">🚀</div></div>
+</div>
+<div id="screen"><h1 style="font-size:42px;color:#ffd700">SPEED <span style="color:#ff4757">RUSH</span></h1><p style="margin-top:10px"><b>REAL CITY 🏙️ REAL CARS 🚗</b></p><p style="font-size:13px;margin-top:10px">👆 DRAG to steer<br>Hold 🚀 to go</p><button class="bigBtn" id="playBtn">▶️ PLAY NOW</button><p style="font-size:12px;margin-top:10px">Made by Maati Raghi 🇲🇦</p></div>
+<div id="over"><h1 style="color:#ff4757;font-size:38px">💥 CRASHED!</h1><p id="finalScore" style="margin:12px;font-size:18px;font-weight:800"></p><button class="bigBtn" id="againBtn">🔄 PLAY AGAIN</button></div>
 <script>
-document.getElementById('playBtn').addEventListener('click', function(){
-  document.getElementById('msg').textContent = '✅ خدامة! الزر كيخدم!';
-  document.body.style.background = 'green';
-});
-</script>
-</body></html>
+let cv=document.getElementById('game'),ctx=cv.getContext('2d');
+function resize(){cv.width=innerWidth;cv.height=innerHeight} resize(); addEventListener('resize',resize);
+let playing=false,score=0,coins=0,level=1,speed=0,playerX=0,keys={left:false,right:false,gas:false,brake:false};
+let enemies=[],coinArr=[],houses=[],trees=[],roadY=0,frame=0,touchSteer=0,touchStartX=0;
+for(let i=0;i<12;i++){houses.push({side:i%2?1:-1,y:i*90, color:['#FFF3D6','#FFE8CC','#D6EAF8','#FADBD8','#D5F5E3'][i%5]});}
+for(let i=0;i<15;i++){trees.push({side:i%2?1:-1,y:i*70});}
+function startGame(){
+document.getElementById('screen').style.display='none';
+document.getElementById('over').style.display='none';
+score=0;coins=0;level=1;speed=0;playerX=0;enemies=[];coinArr=[];playing=true;
+}
+function gameOver(){playing=false;document.getElementById('finalScore').textContent='You got '+coins+' coins - '+Math.floor(score)+' points - LEVEL '+level;document.getElementById('over').style.display='flex';}
+function drawCar(x,y,w,h,color,isPlayer){
+ctx.fillStyle=color;ctx.fillRect(x-w/2,y-h/2,w,h);
+ctx.fillStyle='#AED6F1';ctx.fillRect(x-w*0.35,y-h*0.2,w*0.7,h*0.35);
+ctx.fillStyle='#000';ctx.fillRect(x-w/2-4,y-h/2+6,6,16);ctx.fillRect(x+w/2-2,y-h/2+6,6,16);ctx.fillRect(x-w/2-4,y+h/2-22,6,16);ctx.fillRect(x+w/2-2,y+h/2-22,6,16);
+ctx.fillStyle='#fff';ctx.fillRect(x-w*0.35,y+h/2-6,w*0.25,5);ctx.fillRect(x+w*0.1,y+h/2-6,w*0.25,5);
+ctx.fillStyle='#FF0000';ctx.fillRect(x-w*0.35,y-h/2+1,w*0.25,5);ctx.fillRect(x+w*0.1,y-h/2+1,w*0.25,5);
+if(isPlayer){ctx.fillStyle='#FFD700';ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText('YOU',x,y+5);}
+}
+function loop(){
+requestAnimationFrame(loop);
+let W=cv.width,H=cv.height;
+ctx.fillStyle='#58A05C';ctx.fillRect(0,0,W,H);
+let roadW=Math.min(W*0.75,520),roadX=(W-roadW)/2;
+ctx.fillStyle='#2B2B2B';ctx.fillRect(roadX,0,roadW,H);
+ctx.fillStyle='#AAA';ctx.fillRect(roadX-22,0,18,H);ctx.fillRect(roadX+roadW+4,0,18,H);
+if(playing){
+frame++;roadY+=speed*0.08;if(roadY>60)roadY=0;
+if(keys.gas)speed=Math.min(180+level*15,speed+1.4);
+else if(keys.brake)speed=Math.max(0,speed-3.5);
+else speed=Math.max(0,speed-0.25);
+let steer=0;if(keys.left)steer-=1;if(keys.right)steer+=1;steer+=touchSteer;
+playerX+=steer*(3+speed*0.02);playerX=Math.max(-roadW/2+40,Math.min(roadW/2-40,playerX));
+score+=speed*0.02;
+if(Math.floor(score/800)+1>level)level=Math.floor(score/800)+1;
+let rate=Math.max(30,75-level*6);
+if(frame%rate==0){let lane=[-1,0,1][Math.floor(Math.random()*3)];enemies.push({x:lane*(roadW/3),y:-120,sp:4+Math.random()*3,col:['#2ED573','#1E90FF','#FFC312','#A55EEA','#fff'][Math.floor(Math.random()*5)]});}
+if(frame%32==0){let lane=[-1,0,1][Math.floor(Math.random()*3)];coinArr.push({x:lane*(roadW/3),y:-80});}
+let move=3+speed*0.09;
+enemies.forEach((e,i)=>{e.y+=move+e.sp;if(e.y>H+140){enemies.splice(i,1);return;}if(Math.abs(e.y-(H-180))<70&&Math.abs(e.x-playerX)<55){gameOver();}});
+coinArr.forEach((c,i)=>{c.y+=move;if(c.y>H+50){coinArr.splice(i,1);return;}if(Math.abs(c.y-(H-180))<50&&Math.abs(c.x-playerX)<45){coins++;coinArr.splice(i,1);}});
+}
+ctx.fillStyle='#FFD700';for(let y=-60+roadY;y<H;y+=60){ctx.fillRect(W/2-3,y,6,30);}
+ctx.fillStyle='#fff';for(let y=-60+roadY;y<H;y+=60){ctx.fillRect(roadX+roadW/3-2,y,4,28);ctx.fillRect(roadX+roadW*2/3-2,y,4,28);}
+houses.forEach(h=>{let y=(h.y+roadY*1.2)%(H+150)-100;let x=h.side==1?roadX+roadW+35:roadX-95;ctx.fillStyle=h.color;ctx.fillRect(x,y,60,90);ctx.fillStyle='#C0392B';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+30,y-25);ctx.lineTo(x+60,y);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(x+10,y+25,14,14);ctx.fillRect(x+35,y+25,14,14);ctx.fillStyle='#6E2C00';ctx.fillRect(x+20,y+60,20,30);});
+trees.forEach(t=>{let y=(t.y+roadY*1.2)%(H+120)-80;let x=t.side==1?roadX+roadW+90:roadX-60;ctx.fillStyle='#6B3A0A';ctx.fillRect(x-3,y+20,6,25);ctx.fillStyle='#1E8449';ctx.beginPath();ctx.arc(x,y+15,18,0,Math.PI*2);ctx.fill();});
+coinArr.forEach(c=>{ctx.fillStyle='#FFD700';ctx.beginPath();ctx.arc(W/2+c.x,c.y,16,0,Math.PI*2);ctx.fill();ctx.fillStyle='#FFA500';ctx.beginPath();ctx.arc(W/2+c.x,c.y,11,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 16px system-ui';ctx.textAlign='center';ctx.fillText('$',W/2+c.x,c.y+5);});
+enemies.forEach(e=>{drawCar(W/2+e.x,e.y,70,110,e.col,false);});
+let px=W/2+playerX,py=H-180;
+ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(px-45,py+55,90,8);
+drawCar(px,py,80,125,'#FF2D55',true);
+document.getElementById('coins').textContent=coins;
+document.getElementById('score').textContent=Math.floor(score);
+document.getElementById('level').textContent=level;
+document.getElementById('speedVal').textContent=Math.floor(speed);
+ctx.fillStyle='rgba(0,0,0,.55)';ctx.font='bold 13px system-ui';ctx.textAlign='center';
+if(playing)ctx.fillText('👆 DRAG TO STEER - HOLD 🚀 TO GO',W/2,28);
+}
+loop();
+function bindBtn(id,key){let el=document.getElementById(id);el.addEventListener('touchstart',e=>{e.preventDefault();keys[key]=true;},{passive:false});el.addEventListener('touchend',e=>{e.preventDefault();keys[key]=false;},{passive:false});el.addEventListener('mousedown',()=>keys[key]=true);el.addEventListener('mouseup',()=>keys[key]=false);el.addEventListener('mouseleave',()=>keys[key]=false);}
+bindBtn('leftBtn','left');bindBtn('rightBtn','right');bindBtn('gas','gas');bindBtn('brake','brake');
+document.getElementById('playBtn').addEventListener('click',startGame);
+document.getElementById('againBtn').addEventListener('click',startGame);
+cv.addEventListener('touchstart',e=>{touchStartX=e.touches[0].clientX;touchSteer=0;},{passive:true});
+cv.addEventListener('touchmove',e=>{if(!playing)return;let dx=e.touches[0].clientX-touchStartX;touchSteer=Math.max(-1,Math.min(1,dx/60));},{passive:true});
+cv.addEventListener('touchend',()=>touchSteer=0,{passive:true});
+addEventListener('keydown',e=>{if(e.key=='ArrowLeft')keys.left=true;if(e.key=='ArrowRight')keys.right=true;if(e.key=='ArrowUp')keys.gas=true;if(e.key=='ArrowDown')keys.brake=true;});
+addEventListener('keyup',e=>{if(e.key=='ArrowLeft')keys.left=false;if(e.key=='ArrowRight')keys.right=false;if(e.key=='ArrowUp')keys.gas=false;if(e.key=='ArrowDown')keys.brake=false;});
+</script></body></html>
